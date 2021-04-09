@@ -4,8 +4,8 @@ import time
 class Timer:
     def __init__(self):
         self.start_time = None
-        self.last_duration = -1
-        self.cumulative_duration = -1
+        self.last_duration = 0
+        self.cumulative_duration = 0
 
     def clear(self):
         self.__init__()
