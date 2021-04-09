@@ -1,7 +1,7 @@
 import os
 import json
 
-from general_utils import get_time_random
+from general_utils import get_random_time_stamp
 
 dir_results = os.path.join(os.getcwd(), "results")
 if not os.path.exists(dir_results):
@@ -13,7 +13,7 @@ class ResultRecorder:
         self.ending = False
 
         if file_name_record is None:
-            self.file_name_record = "%s.result" % get_time_random()
+            self.file_name_record = "%s.result" % get_random_time_stamp()
         else:
             if file_name_record.endswith(".result"):
                 self.file_name_record = "%s" % file_name_record
