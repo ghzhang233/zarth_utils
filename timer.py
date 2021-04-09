@@ -22,7 +22,9 @@ class Timer:
     def get_last_time(self):
         if not self.start_time is None:
             return self.last_duration
+        return -1
 
     def get_cumulative_time(self):
         if not self.start_time is None:
             return self.cumulative_duration
+        return -1
