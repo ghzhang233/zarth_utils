@@ -7,7 +7,7 @@ if not os.path.exists(dir_logs):
     os.makedirs(dir_logs)
 
 
-def get_logger(file_log=os.path.join(dir_logs, "logs/%s.log" % get_time_random())):
+def get_logger(file_log=os.path.join(dir_logs, "%s.log" % get_time_random())):
     ret_logger = logging.getLogger()
     ret_logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s: - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
