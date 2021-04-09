@@ -19,12 +19,16 @@ class Timer:
             self.cumulative_duration += self.last_duration
             self.start_time = None
 
-    def get_last_time(self):
+    def get_last_duration(self, start_again=False):
         if self.start_time is not None:
             self.end()
+        if start_again:
+            self.start()
         return self.last_duration
 
-    def get_cumulative_time(self):
+    def get_cumulative_duration(self, start_again=False):
         if self.start_time is not None:
             self.end()
+        if start_again:
+            self.start()
         return self.cumulative_duration
