@@ -11,32 +11,40 @@ class Timer:
         self.__init__()
 
     def start(self):
+        self.last_duration = 0
         self.start_time = time.time()
 
-    def is_started(self):
+    def __is_timing(self):
         return self.start_time is not None
 
-    def is_ended(self):
-        return self.start_time is None
-
     def end(self):
-        if self.is_started():
+        if self.__is_timing():
             self.last_duration = time.time() - self.start_time
             self.cumulative_duration += self.last_duration
             self.start_time = None
 
+    def pause(self):
+        if self.__is_timing():
+            self.last_duration += time.time() - self.start_time
+            self.cumulative_duration += self.last_duration
+            self.start_time = None
+
+    def proceed(self):
+        self.start_time = time.time()
+
     def get_last_duration(self, end_first=False, start_again=False):
-        if not self.is_ended():
+        if self.__is_timing():
             if end_first:
                 self.end()
             else:
                 return -1
+        last_duration = self.last_duration
         if start_again:
             self.start()
-        return self.last_duration
+        return last_duration
 
     def get_cumulative_duration(self, end_first=False, start_again=False):
-        if not self.is_ended():
+        if self.__is_timing():
             if end_first:
                 self.end()
             else:
