@@ -1,19 +1,20 @@
 import os
+import sys
 import logging
 from general_utils import get_random_time_stamp
 
-dir_logs = os.path.join(os.getcwd(), "logs")
+dir_logs = os.path.join(sys.path[0], "logs")
 if not os.path.exists(dir_logs):
     os.makedirs(dir_logs)
 
 
-def get_logger(file_log=os.path.join(dir_logs, "%s.log" % get_random_time_stamp())):
+def get_logger(filename_log="%s.log" % get_random_time_stamp()):
     ret_logger = logging.getLogger()
     ret_logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s: %(message)s', datefmt='%Y-%m-%d-%H:%M:%S')
 
     if not ret_logger.handlers:
-        fh = logging.FileHandler(file_log)
+        fh = logging.FileHandler(os.path.join(dir_logs, filename_log))
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(formatter)
 
