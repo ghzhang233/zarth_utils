@@ -1,8 +1,8 @@
 import json
 import argparse
 
-from general_utils import get_random_time_stamp
-from logger import get_logger
+from zarth_utils.general_utils import get_random_time_stamp
+from zarth_utils.logger import get_logger
 
 
 class Config:

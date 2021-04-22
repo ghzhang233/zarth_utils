@@ -1,6 +1,6 @@
 import pickle
 import os
-from general_utils import get_random_time_stamp
+from zarth_utils.general_utils import get_random_time_stamp
 
 dir_pickled_obj = os.path.join(os.getcwd(), "pickled_objs")
 if not os.path.exists(dir_pickled_obj):
