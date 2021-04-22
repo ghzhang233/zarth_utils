@@ -14,6 +14,7 @@ def get_logger(filename_log="%s.log" % get_random_time_stamp()):
     formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s: %(message)s', datefmt='%Y-%m-%d-%H:%M:%S')
 
     if not ret_logger.handlers:
+        filename_log = "%s.log" % filename_log if not filename_log.endswith(".log") else filename_log
         fh = logging.FileHandler(os.path.join(dir_logs, filename_log))
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(formatter)
