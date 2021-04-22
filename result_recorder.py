@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import pandas as pd
 
 from general_utils import get_random_time_stamp
 from logger import get_logger
@@ -63,3 +64,11 @@ def load_result(filename_record):
                 return
             ret.update(json.loads(line))
     get_logger().warn("File Not Ended!")
+
+
+def group_records(columns):
+    data = pd.DataFrame()
+    for filename in os.listdir(dir_results):
+        if not os.path.isdir(filename):
+            data.append(load_result(filename), ignore_index=True)
+    print(data.group_by(columns))
