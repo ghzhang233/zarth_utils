@@ -6,8 +6,8 @@ from logger import get_logger
 
 
 class Config:
-    def __init__(self, dump_file_name="%s.config" % get_random_time_stamp(),
-                 default_config_filename="default_config.json"):
+    def __init__(self, default_config_filename="default_config.json",
+                 dump_file_name="%s.config" % get_random_time_stamp()):
         self.__parameters = {}
         # load from default config file
         self.__parameters.update(json.load(open(default_config_filename, "r", encoding="utf-8")))
