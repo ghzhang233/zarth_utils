@@ -55,7 +55,7 @@ class ResultRecorder:
         self.__logger.info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
-def load_result(self, filename_record):
+def load_result(filename_record):
     ret = dict()
     with open(filename_record, "r", encoding="utf-8") as fin:
         for line in fin.readlines():
