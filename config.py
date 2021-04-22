@@ -17,7 +17,7 @@ class Config:
             parser.add_argument("--%s" % name_param, default=self.__parameters[name_param])
         args = parser.parse_args()
         self.__parameters.update(vars(args))
-        self.logger = get_logger()
+        self.__logger = get_logger()
 
     def __getitem__(self, item):
         return self.__parameters[item]
@@ -30,4 +30,4 @@ class Config:
 
     def show(self):
         for key in self.__parameters.keys():
-            self.logger.info("%s: %s" % (key, str(self.__parameters[key])))
+            self.__logger.info("%s: %s" % (key, str(self.__parameters[key])))
