@@ -1,37 +1,33 @@
 import json
 import argparse
 
+from logger import get_logger
+
 
 class Config:
-    def __init__(self):
-        self.lock = False
-        self.parameters = {
-        }
+    def __init__(self, default_config_filename="default_config.json"):
+        self.__parameters = {}
 
-    def add_argument_parser(self):
-        parser = argparse.ArgumentParser(description='Process some integers.')
-        for name_param in self.parameters.keys():
-            parser.add_argument("--%s" % name_param, default=self.parameters[name_param])
+        # load from default config file
+        self.__parameters.update(json.load(open(default_config_filename, "r", encoding="utf-8")))
 
+        # add argument parser
+        parser = argparse.ArgumentParser()
+        for name_param in self.__parameters.keys():
+            parser.add_argument("--%s" % name_param, default=self.__parameters[name_param])
         args = parser.parse_args()
-        self.parameters.update(vars(args))
-
-    def __setitem__(self, key, value):
-        if self.lock:
-            raise ValueError
-        self.parameters[key] = value
+        self.__parameters.update(vars(args))
+        self.logger = get_logger()
 
     def __getitem__(self, item):
-        return self.parameters[item]
-
-    def from_json(self, name_config_file="default_config.json"):
-        self.parameters.update(json.load(open(name_config_file, "r", encoding="utf-8")))
-
-    def to_json(self, name_config_file):
-        json.dump(self.parameters, open(name_config_file, "w", encoding="utf-8"))
+        return self.__parameters[item]
 
     def to_dict(self):
-        return self.parameters
+        return self.__parameters
 
-    def block(self):
-        self.lock = True
+    def dump(self, filename):
+        json.dump(self.__parameters, open(filename, "w", encoding="utf-8"))
+
+    def show(self):
+        for key in self.__parameters.keys():
+            self.logger.info("%s: %s" % (key, str(self.__parameters[key])))
