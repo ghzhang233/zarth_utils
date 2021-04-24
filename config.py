@@ -32,7 +32,7 @@ class Config:
         self.__parameters.update(vars(args))
 
         filename_dump = "%s.config" % filename_dump if not filename_dump.endswith(".config") else filename_dump
-        json.dump(self.__parameters, open(os.path.join(dir_configs, filename_dump), "w", encoding="utf-8"))
+        self.dump(os.path.join(dir_configs, filename_dump))
 
         self.__logger = get_logger()
 
@@ -44,3 +44,7 @@ class Config:
 
     def show(self):
         self.__logger.info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
+
+    def dump(self, path_dump):
+        path_dump = "%s.config" % path_dump if not path_dump.endswith(".config") else path_dump
+        json.dump(self.__parameters, open(path_dump, "w", encoding="utf-8"))
