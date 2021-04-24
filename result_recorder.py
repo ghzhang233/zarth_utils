@@ -16,12 +16,16 @@ class ResultRecorder:
         self.__ending = False
         self.__record = dict()
 
-        filename_record = "%s.result" % filename_record if not filename_record.endswith(".result") else filename_record
-        self.__file_record = open(os.path.join(dir_results, filename_record), "w", encoding="utf-8")
+        self.__filename_record = "%s.result" % filename_record if not filename_record.endswith(".result") \
+            else filename_record
 
         if initial_record is not None:
             self.update(initial_record)
         self.__logger = get_logger()
+
+    def write_record(self, line):
+        with open(os.path.join(dir_results, self.__filename_record), "a", encoding="utf-8") as fin:
+            fin.write(line + "\n")
 
     def __getitem__(self, item):
         return self.__record[item]
@@ -30,7 +34,7 @@ class ResultRecorder:
         assert not self.__ending
         assert key not in self.__record.keys()
         self.__record[key] = value
-        self.__file_record.write(json.dumps({key: value}))
+        self.write_record(json.dumps({key: value}))
 
     def update(self, new_record):
         assert type(new_record) == dict
@@ -46,8 +50,7 @@ class ResultRecorder:
 
     def end_recording(self):
         self.__ending = True
-        self.__file_record.write("\n$END$\n")
-        self.__file_record.close()
+        self.write_record("\n$END$\n")
 
     def to_dict(self):
         return self.__record
