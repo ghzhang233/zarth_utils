@@ -9,12 +9,16 @@ from nltk.stem import WordNetLemmatizer
 def process_sentence(s, lower=True, remove_number=True, remove_punctuation=True, tokenize=False, remove_stop=False,
                      stem=False, lemmatize=False):
     s = s.strip()
+    s = s.replace("\t", " ")
+    s = s.replace("\n", " ")
     if lower:
         s = s.lower()
     if remove_number:
         s = re.sub(r"\d +", "", s)
     if remove_punctuation:
         s = "".join(c for c in s if c not in string.punctuation)
+    s = " ".join(s.split())
+
     if tokenize:
         s = word_tokenize(s)
         if remove_stop:
