@@ -1,11 +1,10 @@
 import os
 import sys
 import logging
-from zarth_utils.general_utils import get_random_time_stamp
+from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
 dir_logs = os.path.join(sys.path[0], "logs")
-if not os.path.exists(dir_logs):
-    os.makedirs(dir_logs)
+makedir_if_not_exist(dir_logs)
 
 
 def get_logger(filename_log="%s.log" % get_random_time_stamp()):

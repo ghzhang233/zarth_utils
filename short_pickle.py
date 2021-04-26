@@ -1,10 +1,9 @@
 import pickle
 import os
-from zarth_utils.general_utils import get_random_time_stamp
+from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
 dir_pickled_obj = os.path.join(os.getcwd(), "pickled_objs")
-if not os.path.exists(dir_pickled_obj):
-    os.makedirs(dir_pickled_obj)
+makedir_if_not_exist(dir_pickled_obj)
 
 
 def save(obj, path_file=os.path.join(dir_pickled_obj, "%s.pkl" % get_random_time_stamp())):

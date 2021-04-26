@@ -3,12 +3,11 @@ import sys
 import json
 import pandas as pd
 
-from zarth_utils.general_utils import get_random_time_stamp
+from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 from zarth_utils.logger import get_logger
 
 dir_results = os.path.join(sys.path[0], "results")
-if not os.path.exists(dir_results):
-    os.makedirs(dir_results)
+makedir_if_not_exist(dir_results)
 
 
 class ResultRecorder:
