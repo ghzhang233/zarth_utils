@@ -73,4 +73,4 @@ def group_records(columns):
     for filename in os.listdir(dir_results):
         if not os.path.isdir(filename):
             data.append(load_result(filename), ignore_index=True)
-    print(data.group_by(columns))
+    return data.group_by(columns)
