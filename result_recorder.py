@@ -63,14 +63,19 @@ def load_result(filename_record):
     with open(filename_record, "r", encoding="utf-8") as fin:
         for line in fin.readlines():
             if line.strip() == "$END$":
-                return
+                return ret
+            if len(line.strip().split()) == 0:
+                continue
             ret.update(json.loads(line))
     get_logger().warn("File Not Ended!")
+    return None
 
 
 def group_records(columns):
     data = pd.DataFrame()
     for filename in os.listdir(dir_results):
         if not os.path.isdir(filename):
-            data.append(load_result(filename), ignore_index=True)
-    return data.group_by(columns)
+            result = load_result(os.path.join(dir_results, filename))
+            if result is not None:
+                data = data.append(result, ignore_index=True)
+    return data.groupby(columns)
