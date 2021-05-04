@@ -67,7 +67,7 @@ def load_result(filename_record):
             if len(line.strip().split()) == 0:
                 continue
             ret.update(json.loads(line))
-    get_logger().warn("File Not Ended!")
+    get_logger().warn("File \"%s\" Not Ended!" % filename_record)
     return None
 
 

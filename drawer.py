@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 
 from matplotlib.figure import Figure
 
@@ -19,11 +20,18 @@ class Drawer:
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
+            len_no_nan = 0
+            while len_no_nan < len(yi) and not (np.isnan(yi[len_no_nan]) or np.isinf(yi[len_no_nan])):
+                len_no_nan += 1
+            if len_no_nan == 0:
+                continue
+
             fmt = next(format_generator)
+
             if labels is not None:
-                ax.plot(x, yi, fmt, label=labels[i])
+                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt, label=labels[i])
             else:
-                ax.plot(x, yi, fmt)
+                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt)
 
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -46,7 +54,7 @@ class Drawer:
     @staticmethod
     def get_format(use_marker=False):
         p_color, p_style, p_marker = 0, 0, 0
-        colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'w']
+        colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
         styles = ['-', '--', '-.', ':']
         markers = [""]
         if use_marker:
