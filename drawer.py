@@ -1,12 +1,11 @@
 import os
-import sys
 import numpy as np
 
 from matplotlib.figure import Figure
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
-dir_figures = os.path.join(sys.path[0], "figures")
+dir_figures = os.path.join(os.getcwd(), "figures")
 makedir_if_not_exist(dir_figures)
 
 

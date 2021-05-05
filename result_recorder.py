@@ -6,7 +6,7 @@ import pandas as pd
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 from zarth_utils.logger import get_logger
 
-dir_results = os.path.join(sys.path[0], "results")
+dir_results = os.path.join(os.getcwd(), "results")
 makedir_if_not_exist(dir_results)
 
 

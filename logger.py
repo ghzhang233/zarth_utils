@@ -1,9 +1,8 @@
 import os
-import sys
 import logging
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
-dir_logs = os.path.join(sys.path[0], "logs")
+dir_logs = os.path.join(os.getcwd(), "logs")
 makedir_if_not_exist(dir_logs)
 
 

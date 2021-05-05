@@ -1,12 +1,11 @@
 import os
-import sys
 import json
 import argparse
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 from zarth_utils.logger import get_logger
 
-dir_configs = os.path.join(sys.path[0], "configs")
+dir_configs = os.path.join(os.getcwd(), "configs")
 makedir_if_not_exist(dir_configs)
 
 
