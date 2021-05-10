@@ -78,7 +78,7 @@ def load_result(filename_record):
 def collect_results():
     data = pd.DataFrame()
     for filename in os.listdir(dir_results):
-        if not os.path.isdir(filename):
+        if not os.path.isdir(filename) and filename.endswith(".result"):
             result = load_result(os.path.join(dir_results, filename))
             if result is not None:
                 data = data.append(result, ignore_index=True)
