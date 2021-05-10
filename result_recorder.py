@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import json
 import pandas as pd
@@ -15,6 +16,8 @@ class ResultRecorder:
         self.__ending = False
         self.__record = dict()
 
+        self.__filename_temp_record = "%s.result.temp" % filename_record if not filename_record.endswith(".result") \
+            else filename_record
         self.__filename_record = "%s.result" % filename_record if not filename_record.endswith(".result") \
             else filename_record
 
@@ -23,7 +26,7 @@ class ResultRecorder:
         self.__logger = get_logger()
 
     def write_record(self, line):
-        with open(os.path.join(dir_results, self.__filename_record), "a", encoding="utf-8") as fin:
+        with open(os.path.join(dir_results, self.__filename_temp_record), "a", encoding="utf-8") as fin:
             fin.write(line + "\n")
 
     def __getitem__(self, item):
@@ -50,6 +53,7 @@ class ResultRecorder:
     def end_recording(self):
         self.__ending = True
         self.write_record("\n$END$\n")
+        shutil.move(self.__filename_temp_record, self.__filename_record)
 
     def to_dict(self):
         return self.__record
