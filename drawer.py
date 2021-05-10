@@ -57,8 +57,8 @@ class Drawer:
         styles = ['-', '--', '-.', ':']
         markers = [""]
         if use_marker:
-            markers += ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', 'P', '*', 'h', 'H', '+',
-                        'x', 'X', 'D', 'd', '|', '_', ]
+            markers = ['o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', 'P', '*', 'h', 'H', '+',
+                       'x', 'X', 'D', 'd', '|', '_', ]
 
         while True:
             yield colors[p_color] + styles[p_style] + markers[p_marker]
