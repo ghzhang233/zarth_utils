@@ -53,7 +53,8 @@ class ResultRecorder:
     def end_recording(self):
         self.__ending = True
         self.write_record("\n$END$\n")
-        shutil.move(self.__filename_temp_record, self.__filename_record)
+        shutil.move(os.path.join(dir_results, self.__filename_temp_record),
+                    os.path.join(dir_results, self.__filename_record))
 
     def to_dict(self):
         return self.__record
