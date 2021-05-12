@@ -66,6 +66,7 @@ class ResultRecorder:
 def load_result(filename_record):
     ret = dict()
     with open(filename_record, "r", encoding="utf-8") as fin:
+        ret["filename"] = filename_record
         for line in fin.readlines():
             if line.strip() == "$END$":
                 return ret
