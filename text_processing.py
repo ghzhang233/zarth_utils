@@ -19,16 +19,19 @@ def process_sentence(s, lower=True, remove_number=True, remove_punctuation=True,
         s = "".join(c for c in s if c not in string.punctuation)
     s = " ".join(s.split())
 
-    if tokenize:
+    if tokenize or remove_stop or stem or lemmatize:
         s = word_tokenize(s)
         if remove_stop:
-            s = [w for w in s if w not in stopwords]
+            s = [w for w in s if w not in stopwords.words("english")]
         if stem:
             stemmer = PorterStemmer()
             s = [stemmer.stem(w) for w in s]
         if lemmatize:
             lemmatizer = WordNetLemmatizer()
             s = [lemmatizer.lemmatize(w) for w in s]
+        if not tokenize:
+            s = " ".join(s)
+
     return s
 
 
