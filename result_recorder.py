@@ -17,7 +17,7 @@ class ResultRecorder:
         self.__record = dict()
 
         self.__filename_temp_record = "%s.result.temp" % filename_record if not filename_record.endswith(".result") \
-            else filename_record
+            else filename_record + ".temp"
         self.__filename_record = "%s.result" % filename_record if not filename_record.endswith(".result") \
             else filename_record
 
@@ -69,19 +69,28 @@ def load_result(filename_record):
         ret["filename"] = filename_record
         for line in fin.readlines():
             if line.strip() == "$END$":
-                return ret
+                return ret, True
             if len(line.strip().split()) == 0:
                 continue
             ret.update(json.loads(line))
-    get_logger().warn("File \"%s\" Not Ended!" % filename_record)
-    return None
+    return ret, False
 
 
 def collect_results():
     data = pd.DataFrame()
     for filename in os.listdir(dir_results):
         if not os.path.isdir(filename) and filename.endswith(".result"):
-            result = load_result(os.path.join(dir_results, filename))
-            if result is not None:
+            result, ended = load_result(os.path.join(dir_results, filename))
+            if ended:
                 data = data.append(result, ignore_index=True)
     return data
+
+
+def collect_dead_results():
+    data = pd.DataFrame()
+    for filename in os.listdir(dir_results):
+        if not os.path.isdir(filename) and filename.endswith(".result"):
+            result, ended = load_result(os.path.join(dir_results, filename))
+            if not ended:
+                data = data.append(result, ignore_index=True)
+    return data["filename"]
