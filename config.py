@@ -44,6 +44,6 @@ class Config:
     def dump(self, path_dump=None):
         if path_dump is None:
             makedir_if_not_exist(dir_configs)
-            path_dump = os.path.join(os.getcwd(), "%s.config" % get_random_time_stamp())
+            path_dump = os.path.join(dir_configs, "%s.config" % get_random_time_stamp())
         path_dump = "%s.config" % path_dump if not path_dump.endswith(".config") else path_dump
         json.dump(self.__parameters, open(path_dump, "w", encoding="utf-8"))
