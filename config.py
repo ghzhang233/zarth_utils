@@ -1,9 +1,9 @@
 import os
 import json
 import argparse
+import logging
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
-from zarth_utils.logger import get_logger
 
 dir_configs = os.path.join(os.getcwd(), "configs")
 
@@ -39,7 +39,7 @@ class Config:
         return self.__parameters
 
     def show(self):
-        get_logger().info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging.info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def dump(self, path_dump=None):
         if path_dump is None:

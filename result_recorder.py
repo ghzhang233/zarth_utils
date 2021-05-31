@@ -1,11 +1,10 @@
 import os
 import shutil
-import sys
 import json
 import pandas as pd
+import logging
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
-from zarth_utils.logger import get_logger
 
 dir_results = os.path.join(os.getcwd(), "results")
 makedir_if_not_exist(dir_results)
@@ -23,7 +22,6 @@ class ResultRecorder:
 
         if initial_record is not None:
             self.update(initial_record)
-        self.__logger = get_logger()
 
     def write_record(self, line):
         with open(os.path.join(dir_results, self.__filename_temp_record), "a", encoding="utf-8") as fin:
@@ -46,9 +44,9 @@ class ResultRecorder:
     def add_with_logging(self, key, value, msg=None):
         self.__setitem__(key, value)
         if msg is None:
-            self.__logger.info("%s: %s" % (key, str(value)))
+            logging.info("%s: %s" % (key, str(value)))
         else:
-            self.__logger.info(msg % value)
+            logging.info(msg % value)
 
     def end_recording(self):
         self.__ending = True
@@ -60,7 +58,7 @@ class ResultRecorder:
         return self.__record
 
     def show(self):
-        self.__logger.info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging.info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
 def load_result(filename_record):
