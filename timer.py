@@ -32,23 +32,17 @@ class Timer:
     def proceed(self):
         self.start_time = time.time()
 
-    def get_last_duration(self, end_first=False, start_again=False):
+    def get_last_duration(self, start_again=False):
         if self.__is_timing():
-            if end_first:
-                self.end()
-            else:
-                return -1
+            self.end()
         last_duration = self.last_duration
         if start_again:
             self.start()
         return last_duration
 
-    def get_cumulative_duration(self, end_first=False, start_again=False):
+    def get_cumulative_duration(self, start_again=False):
         if self.__is_timing():
-            if end_first:
-                self.end()
-            else:
-                return -1
+            self.end()
         if start_again:
             self.start()
         return self.cumulative_duration
