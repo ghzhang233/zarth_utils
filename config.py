@@ -12,6 +12,25 @@ class Config:
     def __init__(self,
                  default_config_dict=None,
                  default_config_file=os.path.join(os.getcwd(), "default_config.json")):
+        """
+        Initialize the config. Note that either default_config_dict or default_config_file in json format must be
+        provided! If both are provided, only the dict will be used. The keys will be transferred to
+        argument names, and the type will be automatically detected.
+
+        Examples:
+        default_config_dict = {"lr": 0.01, "optimizer": "sgd", "num_epoch": 30, "use_early_stop": False}
+        Then the following corresponding arguments will be added in this function:
+        parser.add_argument("--lr", type=float)
+        parser.add_argument("--optimizer", type=str)
+        parser.add_argument("--num_epoch", type=int)
+        parser.add_argument("--use_early_stop", action="store_true", default=False)
+        parser.add_argument("--no-use_early_stop", dest="use_early_stop", action="store_false")
+
+        :param default_config_dict: the default config dict
+        :type default_config_dict: dict
+        :param default_config_file: the default config file path
+        :type default_config_file: str
+        """
         self.__parameters = {}
 
         # load from default config file
@@ -33,15 +52,35 @@ class Config:
         self.__parameters.update(vars(args))
 
     def __getitem__(self, item):
+        """
+        Return the config[item]
+        :param item: the key of interest
+        :type item: str
+        :return: config[item]
+        :rtype: object
+        """
         return self.__parameters[item]
 
     def to_dict(self):
+        """
+        Return the config as a dict
+        :return: config dict
+        :rtype: dict
+        """
         return self.__parameters
 
     def show(self):
+        """
+        Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
+        """
         logging.info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def dump(self, path_dump=None):
+        """
+        Dump the config in the path_dump.
+        :param path_dump: the path to dump the config
+        :type path_dump: str
+        """
         if path_dump is None:
             makedir_if_not_exist(dir_configs)
             path_dump = os.path.join(dir_configs, "%s.config" % get_random_time_stamp())

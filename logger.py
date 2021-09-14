@@ -7,6 +7,12 @@ makedir_if_not_exist(dir_logs)
 
 
 def get_logger(filename_log="%s.log" % get_random_time_stamp()):
+    """
+    Set up the logger. Note that the setting will also impact the default logging logger, which means that simply
+    using logging.info() will output the logs to both stdout and the filename_log.
+    :param filename_log: the filename of the log
+    :type filename_log: str
+    """
     ret_logger = logging.getLogger()
     ret_logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s: %(message)s', datefmt='%Y-%m-%d-%H:%M:%S')
