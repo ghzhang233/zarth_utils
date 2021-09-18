@@ -57,7 +57,6 @@ class Config:
         :param item: the key of interest
         :type item: str
         :return: config[item]
-        :rtype: object
         """
         return self.__parameters[item]
 
