@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+import stat
 
 import joblib
 import pandas as pd
@@ -103,6 +104,7 @@ class ResultRecorder:
         self.write_record("\n$END$\n")
         shutil.move(os.path.join(dir_results, self.__filename_temp_record),
                     os.path.join(dir_results, self.__filename_record))
+        os.chmod(os.path.join(dir_results, self.__filename_record), stat.S_IREAD)
 
     def dump(self, path_dump):
         """
