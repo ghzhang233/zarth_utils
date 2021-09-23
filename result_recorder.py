@@ -1,6 +1,8 @@
 import os
 import shutil
 import json
+
+import joblib
 import pandas as pd
 import logging
 
@@ -147,12 +149,21 @@ def collect_results():
     :return: all ended result records
     :rtype: pd.DataFrame
     """
-    data = pd.DataFrame()
+    path_pickled_results = os.path.join(dir_results, "pickled_results.jbl")
+    if os.path.exists(path_pickled_results):
+        data = joblib.load(path_pickled_results)
+        already_collect_list = data["filename"].values
+    else:
+        data = pd.DataFrame()
+        already_collect_list = []
+
     for filename in os.listdir(dir_results):
-        if not os.path.isdir(filename) and filename.endswith(".result"):
+        if not os.path.isdir(filename) and filename.endswith(".result") and filename not in already_collect_list:
             result, ended = load_result(os.path.join(dir_results, filename))
             if ended:
                 data = data.append(result, ignore_index=True)
+
+    joblib.dump(data, path_pickled_results)
     return data
 
 
