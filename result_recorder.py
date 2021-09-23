@@ -5,6 +5,7 @@ import json
 import joblib
 import pandas as pd
 import logging
+import git
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
@@ -13,7 +14,7 @@ makedir_if_not_exist(dir_results)
 
 
 class ResultRecorder:
-    def __init__(self, filename_record="%s.result" % get_random_time_stamp(), initial_record=None):
+    def __init__(self, filename_record="%s.result" % get_random_time_stamp(), initial_record=None, use_git=True):
         """
         Initialize the result recorder. The results will be saved in a temporary file defined by filename_record.temp.
         To end recording and tranfer the temporary files, self.end_recording() must be called.
@@ -32,6 +33,11 @@ class ResultRecorder:
 
         if initial_record is not None:
             self.update(initial_record)
+
+        if use_git:
+            repo = git.Repo(path=os.getcwd())
+            assert not repo.is_dirty()
+            self.__setitem__("git_commit", repo.head.object.hexsha)
 
     def write_record(self, line):
         """
