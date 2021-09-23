@@ -10,16 +10,22 @@ makedir_if_not_exist(dir_figures)
 
 
 class Drawer:
-    def __init__(self, figsize=(6.4, 4.8)):
+    def __init__(self, num_row=1, num_col=1, unit_length=10):
         """
-        Init the drawer with the given figsize.
-        :param figsize: (width, height)
-        :type figsize: (float, float)
+        Init the drawer with the (width=num_col*unit_length, height=num_row*unit_length).
+        :param num_row: the number of rows
+        :type num_row: int
+        :param num_col: the number of columns
+        :type num_col: int
+        :param unit_length: the length of unit
+        :type unit_length: float
         """
-        self.figure = Figure(figsize=figsize)
+        self.num_row = num_row
+        self.num_col = num_col
+        self.figure = Figure(figsize=(num_col * unit_length, num_row * unit_length))
 
-    def draw_one_axes(self, x, y, labels=None, *, nrows=1, ncols=1, index=1, title="", xlabel="", ylabel="",
-                      use_marker=False):
+    def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
+                      title="", xlabel="", ylabel="", use_marker=False):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis
@@ -28,12 +34,12 @@ class Drawer:
         :type y: ``list'' for single ``line of list'' of list for multiple lines
         :param labels: the list of labels of each line
         :type labels: list
+        :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
+        :type index: int
         :param nrows: the number of rows in the figure
         :type nrows: int
         :param ncols: the number of columns in the figure
         :type ncols: int
-        :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
-        :type index: int
         :param title: the title of the axes
         :type title: str
         :param xlabel: the label for x axis
@@ -45,6 +51,9 @@ class Drawer:
         :return:
         :rtype:
         """
+        nrows = self.num_row if nrows is None else nrows
+        ncols = self.num_col if ncols is None else ncols
+
         ax = self.figure.add_subplot(nrows, ncols, index)
 
         format_generator = self.get_format(use_marker)
