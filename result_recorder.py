@@ -96,6 +96,16 @@ class ResultRecorder:
         shutil.move(os.path.join(dir_results, self.__filename_temp_record),
                     os.path.join(dir_results, self.__filename_record))
 
+    def dump(self, path_dump):
+        """
+        Dump the result record in the path_dump.
+        :param path_dump: the path to dump the result record
+        :type path_dump: str
+        """
+        assert self.__ending
+        path_dump = "%s.result" % path_dump if not path_dump.endswith(".result") else path_dump
+        shutil.copy(os.path.join(dir_results, self.__filename_record), path_dump)
+
     def to_dict(self):
         """
         Return the results as a dict.
