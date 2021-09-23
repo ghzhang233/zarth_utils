@@ -30,8 +30,8 @@ class Drawer:
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis
         :type x: list
-        :param y: the data for y axis
-        :type y: ``list'' for single ``line of list'' of list for multiple lines
+        :param y: the data for y axis, list of line lists. e.g. [[1, 2, 3], [2, 3, 1]]
+        :type y: list
         :param labels: the list of labels of each line
         :type labels: list
         :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
