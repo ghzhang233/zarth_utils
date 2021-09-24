@@ -46,6 +46,8 @@ class Config:
             if type(value_param) is bool:
                 parser.add_argument("--%s" % name_param, action="store_true", default=value_param)
                 parser.add_argument("--no-%s" % name_param, dest="%s" % name_param, action="store_false")
+            elif type(value_param) is list:
+                parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
             else:
                 parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
         args = parser.parse_args()
