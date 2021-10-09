@@ -8,29 +8,24 @@ import pandas as pd
 import logging
 import git
 
-from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
-
-dir_results = os.path.join(os.getcwd(), "results")
-makedir_if_not_exist(dir_results)
-
 
 class ResultRecorder:
-    def __init__(self, filename_record="%s.result" % get_random_time_stamp(), initial_record=None, use_git=True):
+    def __init__(self, path_record, initial_record=None, use_git=True):
         """
-        Initialize the result recorder. The results will be saved in a temporary file defined by filename_record.temp.
-        To end recording and tranfer the temporary files, self.end_recording() must be called.
-        :param filename_record: the saving path of the recorded results.
-        :type filename_record: str
+        Initialize the result recorder. The results will be saved in a temporary file defined by path_record.temp.
+        To end recording and transfer the temporary files, self.end_recording() must be called.
+        :param path_record: the saving path of the recorded results.
+        :type path_record: str
         :param initial_record: a record to be initialize with, usually the config in practice
         :type initial_record: dict
         """
         self.__ending = False
         self.__record = dict()
 
-        self.__filename_temp_record = "%s.result.temp" % filename_record if not filename_record.endswith(".result") \
-            else filename_record + ".temp"
-        self.__filename_record = "%s.result" % filename_record if not filename_record.endswith(".result") \
-            else filename_record
+        self.__path_temp_record = "%s.result.temp" % path_record if not path_record.endswith(".result") \
+            else path_record + ".temp"
+        self.__path_record = "%s.result" % path_record if not path_record.endswith(".result") \
+            else path_record
 
         if initial_record is not None:
             self.update(initial_record)
@@ -46,7 +41,7 @@ class ResultRecorder:
         :param line: the content to be write
         :type line: str
         """
-        with open(os.path.join(dir_results, self.__filename_temp_record), "a", encoding="utf-8") as fin:
+        with open(self.__path_temp_record, "a", encoding="utf-8") as fin:
             fin.write(line + "\n")
 
     def __getitem__(self, key):
@@ -102,9 +97,8 @@ class ResultRecorder:
         """
         self.__ending = True
         self.write_record("\n$END$\n")
-        shutil.move(os.path.join(dir_results, self.__filename_temp_record),
-                    os.path.join(dir_results, self.__filename_record))
-        os.chmod(os.path.join(dir_results, self.__filename_record), stat.S_IREAD)
+        shutil.move(self.__path_temp_record, self.__path_record)
+        os.chmod(self.__path_record, stat.S_IREAD)
 
     def dump(self, path_dump):
         """
@@ -114,7 +108,8 @@ class ResultRecorder:
         """
         assert self.__ending
         path_dump = "%s.result" % path_dump if not path_dump.endswith(".result") else path_dump
-        shutil.copy(os.path.join(dir_results, self.__filename_record), path_dump)
+        assert not os.path.exists(path_dump)
+        shutil.copy(self.__path_record, path_dump)
 
     def to_dict(self):
         """
@@ -131,17 +126,17 @@ class ResultRecorder:
         logging.info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
-def load_result(filename_record):
+def load_result(path_record):
     """
-    Load the result based on filename_record.
-    :param filename_record: the filename of the record
-    :type filename_record: str
+    Load the result based on path_record.
+    :param path_record: the path of the record
+    :type path_record: str
     :return: the result and whether the result record is ended
     :rtype: dict, bool
     """
     ret = dict()
-    with open(filename_record, "r", encoding="utf-8") as fin:
-        ret["filename"] = filename_record
+    with open(path_record, "r", encoding="utf-8") as fin:
+        ret["path"] = path_record
         for line in fin.readlines():
             if line.strip() == "$END$":
                 return ret, True
@@ -151,41 +146,51 @@ def load_result(filename_record):
     return ret, False
 
 
-def collect_results():
+def collect_results(dir_results):
     """
-    Collect all the ended results.
+    Collect all the ended results in dir_results.
+    :param dir_results: the directory of the reuslts to be collected
+    :type dir_results: str
     :return: all ended result records
     :rtype: pd.DataFrame
     """
-    path_pickled_results = os.path.join(dir_results, "pickled_results.jbl")
+    assert os.path.exists(dir_results)
+    path_pickled_results = os.path.join(dir_results, ".pickled_results.jbl")
     if os.path.exists(path_pickled_results):
         data = joblib.load(path_pickled_results)
-        already_collect_list = data["filename"].values
+        already_collect_list = data["path"].values
     else:
         data = pd.DataFrame()
         already_collect_list = []
 
-    for filename in os.listdir(dir_results):
-        if not os.path.isdir(filename) and filename.endswith(".result"):
-            if os.path.join(dir_results, filename) not in already_collect_list:
-                result, ended = load_result(os.path.join(dir_results, filename))
-                if ended:
-                    data = data.append(result, ignore_index=True)
+    for path, dir_list, file_list in os.walk(dir_results):
+        for file_name in file_list:
+            path = os.path.join(path, file_name)
+            if not os.path.isdir(path) and path.endswith(".result"):
+                if os.path.join(dir_results, path) not in already_collect_list:
+                    result, ended = load_result(os.path.join(dir_results, path))
+                    if ended:
+                        data = data.append(result, ignore_index=True)
 
     joblib.dump(data, path_pickled_results)
     return data
 
 
-def collect_dead_results():
+def collect_dead_results(dir_results):
     """
     Collect all un-ended results.
+    :param dir_results: the directory of the reuslts to be collected
+    :type dir_results: str
     :return: all un-ended result records.
     :rtype: pd.DataFrame
     """
+    assert os.path.exists(dir_results)
     data = pd.DataFrame()
-    for filename in os.listdir(dir_results):
-        if not os.path.isdir(filename) and filename.endswith(".result"):
-            result, ended = load_result(os.path.join(dir_results, filename))
-            if not ended:
-                data = data.append(result, ignore_index=True)
-    return data["filename"]
+    for path, dir_list, file_list in os.walk(dir_results):
+        for file_name in file_list:
+            path = os.path.join(path, file_name)
+            if not os.path.isdir(path) and path.endswith(".result.temp"):
+                result, ended = load_result(os.path.join(dir_results, path))
+                if not ended:
+                    data = data.append(result, ignore_index=True)
+    return data
