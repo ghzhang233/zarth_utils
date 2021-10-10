@@ -165,11 +165,12 @@ def collect_results(dir_results):
 
     for path, dir_list, file_list in os.walk(dir_results):
         for file_name in file_list:
-            path = os.path.join(path, file_name)
-            if not os.path.isdir(path) and path.endswith(".result"):
-                if os.path.join(dir_results, path) not in already_collect_list:
-                    result, ended = load_result(os.path.join(dir_results, path))
+            file_path = os.path.join(path, file_name)
+            if not os.path.isdir(file_path) and file_path.endswith(".result"):
+                if file_path not in already_collect_list:
+                    result, ended = load_result(file_path)
                     if ended:
+                        print("Collecting %s" % file_path)
                         data = data.append(result, ignore_index=True)
 
     joblib.dump(data, path_pickled_results)
