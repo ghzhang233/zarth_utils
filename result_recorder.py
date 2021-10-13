@@ -163,6 +163,7 @@ def collect_results(dir_results):
         data = pd.DataFrame()
         already_collect_list = []
 
+    updated = False
     for path, dir_list, file_list in os.walk(dir_results):
         for file_name in file_list:
             file_path = os.path.join(path, file_name)
@@ -172,8 +173,10 @@ def collect_results(dir_results):
                     if ended:
                         print("Collecting %s" % file_path)
                         data = data.append(result, ignore_index=True)
+                        updated = True
 
-    joblib.dump(data, path_pickled_results)
+    if updated:
+        joblib.dump(data, path_pickled_results)
     return data
 
 

@@ -28,12 +28,9 @@ class Drawer:
                       title="", xlabel="", ylabel="", use_marker=False):
         """
         Draw one axes, which can be understood as a sub-figure.
-        :param x: the data for x axis
-        :type x: list
-        :param y: the data for y axis, list of line lists. e.g. [[1, 2, 3], [2, 3, 1]]
-        :type y: list
-        :param labels: the list of labels of each line
-        :type labels: list
+        :param x: the data for x axis, list
+        :param y: the data for y axis, list of line lists. e.g. [[1, 2, 3], [2, 3, 1]], list
+        :param labels: the list of labels of each line, list
         :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
         :type index: int
         :param nrows: the number of rows in the figure
