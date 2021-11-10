@@ -91,3 +91,6 @@ class Config:
         path_dump = "%s.config" % path_dump if not path_dump.endswith(".config") else path_dump
         assert not os.path.exists(path_dump)
         json.dump(self.__parameters, open(path_dump, "w", encoding="utf-8"))
+
+    def keys(self):
+        return self.__parameters.keys()
