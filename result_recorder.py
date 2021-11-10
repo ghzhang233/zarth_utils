@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import stat
+from json import JSONDecodeError
 
 import joblib
 import pandas as pd
@@ -169,11 +170,14 @@ def collect_results(dir_results):
             file_path = os.path.join(path, file_name)
             if not os.path.isdir(file_path) and file_path.endswith(".result"):
                 if file_path not in already_collect_list:
-                    result, ended = load_result(file_path)
-                    if ended:
-                        print("Collecting %s" % file_path)
-                        data = data.append(result, ignore_index=True)
-                        updated = True
+                    try:
+                        result, ended = load_result(file_path)
+                        if ended:
+                            print("Collecting %s" % file_path)
+                            data = data.append(result, ignore_index=True)
+                            updated = True
+                    except JSONDecodeError:
+                        print("Collection Failed at %s" % file_path)
 
     if updated:
         joblib.dump(data, path_pickled_results)
