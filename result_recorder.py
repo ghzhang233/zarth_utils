@@ -173,6 +173,7 @@ def collect_results(dir_results):
             if not os.path.isdir(file_path) and file_path.endswith(".result"):
                 if file_path not in already_collect_list:
                     to_be_read.append(file_path)
+    print("Got %d to be read." % len(to_be_read))
 
     new_data = list()
     for file_path in tqdm(to_be_read):
@@ -183,6 +184,7 @@ def collect_results(dir_results):
                 updated = True
         except JSONDecodeError:
             print("Collection Failed at %s" % file_path)
+    print("Got %d new." % len(new_data))
 
     new_data = pd.concat(new_data, axis=0)
     data = pd.concat([data, new_data], axis=0)
