@@ -185,7 +185,7 @@ def collect_results(dir_results):
             print("Collection Failed at %s" % file_path)
 
     new_data = pd.concat(new_data, axis=0)
-    data = pd.concat([new_data, data], axis=0)
+    data = pd.concat([data, new_data], axis=0)
 
     if updated:
         joblib.dump(data, path_pickled_results)
