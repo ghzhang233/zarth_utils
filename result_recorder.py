@@ -3,6 +3,7 @@ import shutil
 import json
 import stat
 from json import JSONDecodeError
+from tqdm import tqdm
 
 import joblib
 import pandas as pd
@@ -165,19 +166,27 @@ def collect_results(dir_results):
         already_collect_list = []
 
     updated = False
+    to_be_read = []
     for path, dir_list, file_list in os.walk(dir_results):
         for file_name in file_list:
             file_path = os.path.join(path, file_name)
             if not os.path.isdir(file_path) and file_path.endswith(".result"):
                 if file_path not in already_collect_list:
-                    try:
-                        result, ended = load_result(file_path)
-                        if ended:
-                            print("Collecting %s" % file_path)
-                            data = data.append(result, ignore_index=True)
-                            updated = True
-                    except JSONDecodeError:
-                        print("Collection Failed at %s" % file_path)
+                    to_be_read.append(file_path)
+
+    new_data = list()
+    for file_path in tqdm(to_be_read):
+        try:
+            result, ended = load_result(file_path)
+            if ended:
+                print("Collecting %s" % file_path)
+                new_data.append(pd.DataFrame(pd.Series(result)).transpose())
+                updated = True
+        except JSONDecodeError:
+            print("Collection Failed at %s" % file_path)
+
+    new_data = pd.concat(new_data, axis=0)
+    data = data.concat([new_data, data], axis=0)
 
     if updated:
         joblib.dump(data, path_pickled_results)
@@ -193,12 +202,13 @@ def collect_dead_results(dir_results):
     :rtype: pd.DataFrame
     """
     assert os.path.exists(dir_results)
-    data = pd.DataFrame()
+    data = list()
     for path, dir_list, file_list in os.walk(dir_results):
         for file_name in file_list:
             path = os.path.join(path, file_name)
             if not os.path.isdir(path) and path.endswith(".result.temp"):
                 result, ended = load_result(os.path.join(dir_results, path))
                 if not ended:
-                    data = data.append(result, ignore_index=True)
+                    data.append(pd.DataFrame(pd.Series(result)).transpose())
+    data = pd.concat(data, axis=0)
     return data
