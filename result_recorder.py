@@ -179,7 +179,7 @@ def collect_results(dir_results):
         try:
             result, ended = load_result(file_path)
             if ended:
-                print("Collecting %s" % file_path)
+                # print("Collecting %s" % file_path)
                 new_data.append(pd.DataFrame(pd.Series(result)).transpose())
                 updated = True
         except JSONDecodeError:
