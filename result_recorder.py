@@ -186,10 +186,9 @@ def collect_results(dir_results):
             print("Collection Failed at %s" % file_path)
     print("Got %d new." % len(new_data))
 
-    new_data = pd.concat(new_data, axis=0)
-    data = pd.concat([data, new_data], axis=0)
-
     if updated:
+        new_data = pd.concat(new_data, axis=0)
+        data = pd.concat([data, new_data], axis=0)
         joblib.dump(data, path_pickled_results)
     return data
 
