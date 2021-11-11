@@ -179,14 +179,13 @@ def collect_results(dir_results):
         try:
             result, ended = load_result(file_path)
             if ended:
-                # print("Collecting %s" % file_path)
                 new_data.append(pd.DataFrame(pd.Series(result)).transpose())
                 updated = True
         except JSONDecodeError:
             print("Collection Failed at %s" % file_path)
 
     new_data = pd.concat(new_data, axis=0)
-    data = data.concat([new_data, data], axis=0)
+    data = pd.concat([new_data, data], axis=0)
 
     if updated:
         joblib.dump(data, path_pickled_results)
