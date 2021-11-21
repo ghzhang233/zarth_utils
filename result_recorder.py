@@ -10,6 +10,8 @@ import pandas as pd
 import logging
 import git
 
+from zarth_utils.general_utils import get_random_time_stamp
+
 
 class ResultRecorder:
     def __init__(self, path_record, initial_record=None, use_git=True):
@@ -28,6 +30,11 @@ class ResultRecorder:
             else path_record + ".temp"
         self.__path_record = "%s.result" % path_record if not path_record.endswith(".result") \
             else path_record
+
+        if os.path.exists(self.__path_temp_record):
+            shutil.move(self.__path_temp_record, self.__path_temp_record + ".%s" % get_random_time_stamp())
+        if os.path.exists(self.__path_record):
+            shutil.move(self.__path_record, self.__path_record + ".%s" % get_random_time_stamp())
 
         if initial_record is not None:
             self.update(initial_record)
