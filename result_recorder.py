@@ -197,7 +197,7 @@ def collect_results(dir_results):
         new_data = pd.concat(new_data, axis=0)
         data = pd.concat([data, new_data], axis=0)
         joblib.dump(data, path_pickled_results)
-    return data
+    return data.copy()
 
 
 def collect_dead_results(dir_results):
