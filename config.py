@@ -57,7 +57,7 @@ class Config:
         updated_parameters = dict()
         args_dict = vars(args)
         for k in vars(args):
-            if self.__parameters[k] != args_dict[k]:
+            if k != "config_file" and self.__parameters[k] != args_dict[k]:
                 updated_parameters[k] = args_dict[k]
 
         if args.config_file is not None:
