@@ -25,7 +25,7 @@ class Drawer:
         self.figure = Figure(figsize=(num_col * unit_length, num_row * unit_length))
 
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
-                      title="", xlabel="", ylabel="", use_marker=False):
+                      title="", xlabel="", ylabel="", use_marker=False, linewidth=5, fontsize=15):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis, list
@@ -45,6 +45,8 @@ class Drawer:
         :type ylabel: str
         :param use_marker: whether use markers to mark the points, default=False
         :type use_marker: bool
+        :param linewidth: the width of the lines
+        :param fontsize: the size of the fonts
         :return:
         :rtype:
         """
@@ -64,15 +66,15 @@ class Drawer:
             fmt = next(format_generator)
 
             if labels is not None:
-                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt, label=labels[i])
+                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt, label=labels[i], linewidth=linewidth)
             else:
-                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt)
+                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt, linewidth=linewidth)
 
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
+        ax.set_xlabel(xlabel, fontsize=fontsize)
+        ax.set_ylabel(ylabel, fontsize=fontsize)
+        ax.set_title(title, fontsize=fontsize)
         if labels is not None:
-            ax.legend()
+            ax.legend(fontsize=fontsize)
 
     def show(self):
         """
