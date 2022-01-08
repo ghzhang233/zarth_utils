@@ -16,6 +16,7 @@ class Config:
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
         provided! If both are provided, only the dict will be used. The keys will be transferred to
         argument names, and the type will be automatically detected.
+        The priority is the user specified parameter > user specified config file > default config file
 
         Examples:
         default_config_dict = {"lr": 0.01, "optimizer": "sgd", "num_epoch": 30, "use_early_stop": False}
@@ -30,7 +31,6 @@ class Config:
         :type default_config_dict: dict
         :param default_config_file: the default config file path
         :type default_config_file: str
-        :param use_argparse: whether add argparse
         """
         self.__parameters = {}
 
@@ -53,11 +53,17 @@ class Config:
             else:
                 parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
         args = parser.parse_args()
-        self.__parameters.update(vars(args))
+
+        updated_parameters = dict()
+        args_dict = vars(args)
+        for k in vars(args):
+            if self.__parameters[k] != args_dict[k]:
+                updated_parameters[k] = args_dict[k]
 
         if args.config_file is not None:
-            self.__parameters = {}
             self.__parameters.update(json.load(open(args.config_file, "r", encoding="utf-8")))
+
+        self.__parameters.update(updated_parameters)
 
     def __getitem__(self, item):
         """
