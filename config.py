@@ -11,8 +11,7 @@ dir_configs = os.path.join(os.getcwd(), "configs")
 class Config:
     def __init__(self,
                  default_config_dict=None,
-                 default_config_file=os.path.join(os.getcwd(), "default_config.json"),
-                 use_argparse=True):
+                 default_config_file=os.path.join(os.getcwd(), "default_config.json")):
         """
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
         provided! If both are provided, only the dict will be used. The keys will be transferred to
@@ -41,20 +40,24 @@ class Config:
         else:
             self.__parameters.update(json.load(open(default_config_file, "r", encoding="utf-8")))
 
-        if use_argparse:
-            # add argument parser
-            parser = argparse.ArgumentParser()
-            for name_param in self.__parameters.keys():
-                value_param = self.__parameters[name_param]
-                if type(value_param) is bool:
-                    parser.add_argument("--%s" % name_param, action="store_true", default=value_param)
-                    parser.add_argument("--no-%s" % name_param, dest="%s" % name_param, action="store_false")
-                elif type(value_param) is list:
-                    parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
-                else:
-                    parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
-            args = parser.parse_args()
-            self.__parameters.update(vars(args))
+        # add argument parser
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--config_file", type=str, default=None)
+        for name_param in self.__parameters.keys():
+            value_param = self.__parameters[name_param]
+            if type(value_param) is bool:
+                parser.add_argument("--%s" % name_param, action="store_true", default=value_param)
+                parser.add_argument("--no-%s" % name_param, dest="%s" % name_param, action="store_false")
+            elif type(value_param) is list:
+                parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
+            else:
+                parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
+        args = parser.parse_args()
+        self.__parameters.update(vars(args))
+
+        if args.config_file is not None:
+            self.__parameters = {}
+            self.__parameters.update(json.load(open(args.config_file, "r", encoding="utf-8")))
 
     def __getitem__(self, item):
         """
