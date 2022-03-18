@@ -60,6 +60,13 @@ class Drawer:
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
+            if len(x) == len(y):
+                xi = x[i]
+            elif len(x) == len(y[0]):
+                xi = x
+            else:
+                raise NotImplementedError
+
             len_no_nan = 0
             while len_no_nan < len(yi) and not (np.isnan(yi[len_no_nan]) or np.isinf(yi[len_no_nan])):
                 len_no_nan += 1
@@ -69,9 +76,9 @@ class Drawer:
             fmt = next(format_generator)
 
             if labels is not None:
-                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt, label=labels[i], linewidth=linewidth)
+                ax.plot(xi[:len_no_nan], yi[:len_no_nan], fmt, label=labels[i], linewidth=linewidth)
             else:
-                ax.plot(x[:len_no_nan], yi[:len_no_nan], fmt, linewidth=linewidth)
+                ax.plot(xi[:len_no_nan], yi[:len_no_nan], fmt, linewidth=linewidth)
 
         ax.set_xlabel(xlabel, fontsize=fontsize)
         ax.set_ylabel(ylabel, fontsize=fontsize)
