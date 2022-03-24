@@ -1,3 +1,4 @@
+import sys
 import logging
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
@@ -19,7 +20,7 @@ def get_logger(path_log="%s.log" % get_random_time_stamp()):
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(formatter)
 
-        ch = logging.StreamHandler()
+        ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(logging.DEBUG)
         ch.setFormatter(formatter)
 
