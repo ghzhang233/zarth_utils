@@ -212,9 +212,9 @@ def collect_dead_results(dir_results):
     data = list()
     for path, dir_list, file_list in os.walk(dir_results):
         for file_name in file_list:
-            path = os.path.join(path, file_name)
-            if not os.path.isdir(path) and path.endswith(".result.temp"):
-                result, ended = load_result(os.path.join(dir_results, path))
+            path_file = os.path.join(path, file_name)
+            if not os.path.isdir(path_file) and path_file.endswith(".result.temp"):
+                result, ended = load_result(os.path.join(path_file))
                 if not ended:
                     data.append(pd.DataFrame(pd.Series(result)).transpose())
     data = pd.concat(data, axis=0)
