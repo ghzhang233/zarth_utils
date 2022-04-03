@@ -7,10 +7,12 @@ from tqdm import tqdm
 
 import joblib
 import pandas as pd
+import numpy as np
 import logging
 import git
 
 from zarth_utils.general_utils import get_random_time_stamp
+from zarth_utils.config import Config
 
 
 class ResultRecorder:
@@ -218,4 +220,47 @@ def collect_dead_results(dir_results):
                 if not ended:
                     data.append(pd.DataFrame(pd.Series(result)).transpose())
     data = pd.concat(data, axis=0)
+    return data
+
+
+def get_max_epoch(data):
+    max_epoch = max([int(c.split("-")[0].split("_")[1]) for c in data.columns if c.startswith("epoch_")])
+    return max_epoch
+
+
+def get_recorded_metrics(data):
+    return set([c.split("-")[1] for c in data.columns if c.startswith("epoch_0-")])
+
+
+def get_trajectory(data, metric, filters):
+    data_filtered = data[filters]
+    assert len(data_filtered) == 1, "%d Files Located" % len(data_filtered)
+    max_epoch = get_max_epoch(data)
+
+    x, y = [], []
+    for epoch in range(max_epoch):
+        if "epoch_%d-%s" % (epoch, metric) in data_filtered.columns:
+            v = data_filtered["epoch_%d-%s" % (epoch, metric)].values[0]
+            if not np.isnan(v) and not np.isinf(v):
+                x.append(epoch)
+                y.append(v)
+
+    return x, y
+
+
+def fill_config_na(data, config_path, prefix="", suffix="", exclude_key=None):
+    config = Config(default_config_file=config_path)
+    for k in config.keys():
+        if k not in exclude_key:
+            data[prefix + k + suffix] = data[prefix + k + suffix].fillna(config[k])
+    return data
+
+
+def remove_duplicate(data, keys=("phase", "exp_name")):
+    data = data.drop_duplicates(subset=keys, keep="last")
+    return data
+
+
+def merge_phase(data, data_to_merge, merge_on_keys=("exp_name",)):
+    data.merge(data_to_merge, how="inner", on=merge_on_keys)
     return data

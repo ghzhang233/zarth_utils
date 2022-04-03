@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from matplotlib.figure import Figure
+from matplotlib.pyplot import figure
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 
@@ -22,7 +22,7 @@ class Drawer:
         """
         self.num_row = num_row
         self.num_col = num_col
-        self.figure = Figure(figsize=(num_col * unit_length, num_row * unit_length))
+        self.figure = figure(figsize=(num_col * unit_length, num_row * unit_length))
 
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
                       title="", xlabel="", ylabel="", use_marker=False, linewidth=5,
