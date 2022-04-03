@@ -10,8 +10,8 @@ dir_configs = os.path.join(os.getcwd(), "configs")
 
 class Config:
     def __init__(self,
-                 default_config_dict=None,
                  default_config_file=os.path.join(os.getcwd(), "default_config.json"),
+                 default_config_dict=None,
                  use_argparse=True):
         """
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
