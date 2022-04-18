@@ -241,7 +241,7 @@ def get_trajectory(data, metric, filters):
     for epoch in range(max_epoch):
         if "epoch_%d-%s" % (epoch, metric) in data_filtered.columns:
             v = data_filtered["epoch_%d-%s" % (epoch, metric)].values[0]
-            if not np.isnan(v) and not np.isinf(v):
+            if (type(v) in [str]) or (not np.isnan(v) and not np.isinf(v)):
                 x.append(epoch)
                 y.append(v)
 
