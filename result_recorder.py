@@ -157,11 +157,12 @@ def load_result(path_record):
     return ret, False
 
 
-def collect_results(dir_results):
+def collect_results(dir_results, collect_condition_func=None):
     """
     Collect all the ended results in dir_results.
     :param dir_results: the directory of the reuslts to be collected
     :type dir_results: str
+    :param collect_condition_func: function to judge whether collect or not
     :return: all ended result records
     :rtype: pd.DataFrame
     """
@@ -181,7 +182,8 @@ def collect_results(dir_results):
             file_path = os.path.join(path, file_name)
             if not os.path.isdir(file_path) and file_path.endswith(".result"):
                 if file_path not in already_collect_list:
-                    to_be_read.append(file_path)
+                    if collect_condition_func is None or collect_condition_func(file_path):
+                        to_be_read.append(file_path)
     print("Got %d to be read." % len(to_be_read))
 
     new_data = list()
