@@ -232,8 +232,8 @@ def get_recorded_metrics(data):
     return set([c.split("-")[1] for c in data.columns if c.startswith("epoch_0-")])
 
 
-def get_trajectory(data, metric, filters):
-    data_filtered = data[filters]
+def get_trajectory(data, metric, filters=None):
+    data_filtered = data[filters] if filters is not None else data
     assert len(data_filtered) == 1, "%d Files Located" % len(data_filtered)
     max_epoch = get_max_epoch(data)
 
@@ -244,6 +244,8 @@ def get_trajectory(data, metric, filters):
             if (type(v) in [str]) or (not np.isnan(v) and not np.isinf(v)):
                 x.append(epoch)
                 y.append(v)
+            else:
+                break
 
     return x, y
 
