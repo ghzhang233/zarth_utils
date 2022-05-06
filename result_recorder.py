@@ -79,7 +79,6 @@ class ResultRecorder:
         :param new_record: the new results dict
         :type new_record: dict
         """
-        assert type(new_record) == dict
         for k in new_record.keys():
             self.__setitem__(k, new_record[k])
 
