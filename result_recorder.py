@@ -156,17 +156,18 @@ def load_result(path_record):
     return ret, False
 
 
-def collect_results(dir_results, collect_condition_func=None):
+def collect_results(dir_results, collect_condition_func=None, pickled_filename=".pickled_results.jbl"):
     """
     Collect all the ended results in dir_results.
     :param dir_results: the directory of the reuslts to be collected
     :type dir_results: str
     :param collect_condition_func: function to judge whether collect or not
+    :param pickled_filename: filename of the pickled file
     :return: all ended result records
     :rtype: pd.DataFrame
     """
     assert os.path.exists(dir_results)
-    path_pickled_results = os.path.join(dir_results, ".pickled_results.jbl")
+    path_pickled_results = os.path.join(dir_results, pickled_filename)
     if os.path.exists(path_pickled_results):
         data = joblib.load(path_pickled_results)
         already_collect_list = data["path"].values
