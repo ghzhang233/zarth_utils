@@ -26,7 +26,7 @@ class Drawer:
 
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
                       title="", xlabel="", ylabel="", use_marker=False, linewidth=5,
-                      fontsize=15, xlim=None, ylim=None):
+                      fontsize=15, xlim=None, ylim=None, smooth=0):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis, list
@@ -50,6 +50,7 @@ class Drawer:
         :param fontsize: the size of the fonts
         :param xlim: the range of x axis
         :param ylim: the range of y axis
+        :param smooth: smooth the line with neighbours
         :return:
         :rtype:
         """
@@ -66,6 +67,14 @@ class Drawer:
                 xi = x
             else:
                 raise NotImplementedError
+
+            if smooth != 0:
+                yi_smoothed = []
+                for j, yij in enumerate(yi):
+                    if j - smooth >= 0 and j + smooth < len(yi):
+                        yij = sum(yi[j - smooth:j + smooth]) / (2 * smooth + 1)
+                    yi_smoothed.append(yij)
+                yi = yi_smoothed
 
             len_no_nan = 0
             while len_no_nan < len(yi) and not (np.isnan(yi[len_no_nan]) or np.isinf(yi[len_no_nan])):
