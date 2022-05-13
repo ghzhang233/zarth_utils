@@ -260,10 +260,11 @@ def fill_config_na(data, config_path, prefix="", suffix="", exclude_key=None):
     return data
 
 
-def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_seed")):
+def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_seed"), suffix="_train"):
     ret = []
     config = Config(default_config_file=config_path)
     for k in config.keys():
+        k += suffix
         if k not in exclude_key and len(set([(tuple(i) if type(i) == list else i) for i in data[k].values])) != 1:
             ret.append(k)
     return ret
@@ -271,9 +272,4 @@ def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_see
 
 def remove_duplicate(data, keys=("phase", "exp_name")):
     data = data.drop_duplicates(subset=keys, keep="last")
-    return data
-
-
-def merge_phase(data, data_to_merge, merge_on_keys=("exp_name",), suffixes=("_train", "_eval")):
-    data.merge(data_to_merge, how="outer", on=merge_on_keys, suffixes=suffixes)
     return data
