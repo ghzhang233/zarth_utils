@@ -71,8 +71,9 @@ class Drawer:
             if smooth != 0:
                 yi_smoothed = []
                 for j, yij in enumerate(yi):
-                    if j - smooth >= 0 and j + smooth < len(yi):
-                        yij = sum(yi[j - smooth:j + smooth]) / (2 * smooth + 1)
+                    _r = min(j + smooth, len(yi) - 1)
+                    _l = max(j - smooth, 0)
+                    yij = sum(yi[_l: _r]) / (_r - _l)
                     yi_smoothed.append(yij)
                 yi = yi_smoothed
 
