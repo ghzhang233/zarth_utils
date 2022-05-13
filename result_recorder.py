@@ -275,5 +275,5 @@ def remove_duplicate(data, keys=("phase", "exp_name")):
 
 
 def merge_phase(data, data_to_merge, merge_on_keys=("exp_name",), suffixes=("", "_eval")):
-    data.merge(data_to_merge, how="left", on=merge_on_keys, suffixes=suffixes)
+    data.merge(data_to_merge, how="outer", on=merge_on_keys, suffixes=suffixes)
     return data
