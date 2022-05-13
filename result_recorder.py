@@ -264,7 +264,7 @@ def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_see
     ret = []
     config = Config(default_config_file=config_path)
     for k in config.keys():
-        if k not in exclude_key and len(np.unique(data[k].values)) != 1:
+        if k not in exclude_key and len(set(data[k].values)) != 1:
             ret.append(k)
     return ret
 
