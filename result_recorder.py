@@ -264,9 +264,10 @@ def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_see
     ret = []
     config = Config(default_config_file=config_path)
     for k in config.keys():
-        k += suffix
-        if k not in exclude_key and len(set([(tuple(i) if type(i) == list else i) for i in data[k].values])) != 1:
-            ret.append(k)
+        if k not in exclude_key:
+            k += suffix
+            if len(set([(tuple(i) if type(i) == list else i) for i in data[k].values])) != 1:
+                ret.append(k)
     return ret
 
 
