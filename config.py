@@ -41,9 +41,9 @@ class Config:
         else:
             self.__parameters.update(json.load(open(default_config_file, "r", encoding="utf-8")))
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--config_file", type=str, default=None)
         if use_argparse:
+            parser = argparse.ArgumentParser()
+            parser.add_argument("--config_file", type=str, default=None)
             # add argument parser
             for name_param in self.__parameters.keys():
                 value_param = self.__parameters[name_param]
@@ -54,12 +54,11 @@ class Config:
                     parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
                 else:
                     parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
-        args = parser.parse_args()
+            args = parser.parse_args()
 
-        if args.config_file is not None:
-            self.__parameters.update(json.load(open(args.config_file, "r", encoding="utf-8")))
+            if args.config_file is not None:
+                self.__parameters.update(json.load(open(args.config_file, "r", encoding="utf-8")))
 
-        if use_argparse:
             updated_parameters = dict()
             args_dict = vars(args)
             for k in vars(args):
