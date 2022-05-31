@@ -25,7 +25,7 @@ class Drawer:
         self.figure = figure(figsize=(num_col * unit_length, num_row * unit_length))
 
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
-                      title="", xlabel="", ylabel="", use_marker=False, linewidth=5,
+                      title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
                       fontsize=15, xlim=None, ylim=None, smooth=0):
         """
         Draw one axes, which can be understood as a sub-figure.
@@ -48,8 +48,8 @@ class Drawer:
         :type use_marker: bool
         :param linewidth: the width of the lines
         :param fontsize: the size of the fonts
-        :param xlim: the range of x axis
-        :param ylim: the range of y axis
+        :param xlim: the range of x axis, (low, upp)
+        :param ylim: the range of y axis, (low, upp)
         :param smooth: smooth the line with neighbours
         :return:
         :rtype:
@@ -101,6 +101,8 @@ class Drawer:
             ax.set_ylim(*ylim)
         if labels is not None:
             ax.legend(fontsize=fontsize)
+
+        return ax
 
     def show(self):
         """
