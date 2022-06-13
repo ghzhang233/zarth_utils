@@ -26,7 +26,7 @@ class Drawer:
 
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
                       title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
-                      fontsize=15, xlim=None, ylim=None, smooth=0):
+                      fontsize=15, xlim=None, ylim=None, smooth=0, mode="plot"):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis, list
@@ -46,11 +46,12 @@ class Drawer:
         :type ylabel: str
         :param use_marker: whether use markers to mark the points, default=False
         :type use_marker: bool
-        :param linewidth: the width of the lines
+        :param linewidth: the width of the lines for mode "plot", or the size of the points for mode "scatter"
         :param fontsize: the size of the fonts
         :param xlim: the range of x axis, (low, upp)
         :param ylim: the range of y axis, (low, upp)
         :param smooth: smooth the line with neighbours
+        :param mode: "plot" or "scatter"
         :return:
         :rtype:
         """
@@ -85,10 +86,18 @@ class Drawer:
 
             fmt = next(format_generator)
 
+            kwargs = dict()
             if labels is not None:
-                ax.plot(xi[:len_no_nan], yi[:len_no_nan], fmt, label=labels[i], linewidth=linewidth)
+                kwargs["label"] = labels[i]
+            if mode == "plot":
+                kwargs["linewidth"] = linewidth
+
+            if mode == "plot":
+                ax.plot(xi[:len_no_nan], yi[:len_no_nan], fmt, **kwargs)
+            elif mode == "scatter":
+                ax.scatter(xi[:len_no_nan], yi[:len_no_nan], c=fmt[0], s=linewidth, **kwargs)
             else:
-                ax.plot(xi[:len_no_nan], yi[:len_no_nan], fmt, linewidth=linewidth)
+                raise NotImplementedError
 
         ax.set_xlabel(xlabel, fontsize=fontsize)
         ax.set_ylabel(ylabel, fontsize=fontsize)
