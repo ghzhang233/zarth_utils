@@ -24,6 +24,49 @@ class Drawer:
         self.num_col = num_col
         self.figure = figure(figsize=(num_col * unit_length, num_row * unit_length))
 
+    def add_one_empty_axes(self, index=1, nrows=None, ncols=None,
+                           title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
+                           fontsize=15, xlim=None, ylim=None):
+        """
+        Draw one axes, which can be understood as a sub-figure.
+        :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
+        :type index: int
+        :param nrows: the number of rows in the figure
+        :type nrows: int
+        :param ncols: the number of columns in the figure
+        :type ncols: int
+        :param title: the title of the axes
+        :type title: str
+        :param xlabel: the label for x axis
+        :type xlabel: str
+        :param ylabel: the label for x axis
+        :type ylabel: str
+        :param use_marker: whether use markers to mark the points, default=False
+        :type use_marker: bool
+        :param linewidth: the width of the lines for mode "plot", or the size of the points for mode "scatter"
+        :param fontsize: the size of the fonts
+        :param xlim: the range of x axis, (low, upp)
+        :param ylim: the range of y axis, (low, upp)
+        :return:
+        :rtype:
+        """
+        nrows = self.num_row if nrows is None else nrows
+        ncols = self.num_col if ncols is None else ncols
+
+        ax = self.figure.add_subplot(nrows, ncols, index)
+
+        ax.set_xlabel(xlabel, fontsize=fontsize)
+        ax.set_ylabel(ylabel, fontsize=fontsize)
+        ax.set_title(title, fontsize=fontsize)
+        ax.xaxis.set_tick_params(labelsize=fontsize)
+        ax.yaxis.set_tick_params(labelsize=fontsize)
+        if xlim is not None:
+            ax.set_xlim(*xlim)
+        if ylim is not None:
+            ax.set_ylim(*ylim)
+
+        return ax
+
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
                       title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
                       fontsize=15, xlim=None, ylim=None, smooth=0, mode="plot"):
@@ -55,10 +98,8 @@ class Drawer:
         :return:
         :rtype:
         """
-        nrows = self.num_row if nrows is None else nrows
-        ncols = self.num_col if ncols is None else ncols
-
-        ax = self.figure.add_subplot(nrows, ncols, index)
+        ax = self.add_one_empty_axes(index, nrows, ncols, title, xlabel, ylabel,
+                                     use_marker, linewidth, fontsize, xlim, ylim)
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
@@ -99,15 +140,6 @@ class Drawer:
             else:
                 raise NotImplementedError
 
-        ax.set_xlabel(xlabel, fontsize=fontsize)
-        ax.set_ylabel(ylabel, fontsize=fontsize)
-        ax.set_title(title, fontsize=fontsize)
-        ax.xaxis.set_tick_params(labelsize=fontsize)
-        ax.yaxis.set_tick_params(labelsize=fontsize)
-        if xlim is not None:
-            ax.set_xlim(*xlim)
-        if ylim is not None:
-            ax.set_ylim(*ylim)
         if labels is not None:
             ax.legend(fontsize=fontsize)
 
