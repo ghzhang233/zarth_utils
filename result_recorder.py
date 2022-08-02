@@ -136,11 +136,12 @@ class ResultRecorder:
         logging.info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
-def load_result(path_record):
+def load_result(path_record, return_type="dict"):
     """
     Load the result based on path_record.
     :param path_record: the path of the record
     :type path_record: str
+    :param return_type: "dict" or "dataframe"
     :return: the result and whether the result record is ended
     :rtype: dict, bool
     """
@@ -153,6 +154,8 @@ def load_result(path_record):
             if len(line.strip().split()) == 0:
                 continue
             ret.update(json.loads(line))
+    if return_type == "dataframe":
+        ret = pd.DataFrame(pd.Series(ret)).transpose()
     return ret, False
 
 
@@ -240,7 +243,7 @@ def get_trajectory(data, metric, filters=None):
     max_epoch = get_max_epoch(data)
 
     x, y = [], []
-    for epoch in range(max_epoch):
+    for epoch in range(max_epoch + 1):
         if "epoch_%d-%s" % (epoch, metric) in data_filtered.columns:
             v = data_filtered["epoch_%d-%s" % (epoch, metric)].values[0]
             if (type(v) in [str]) or (not np.isnan(v) and not np.isinf(v)):
@@ -248,6 +251,10 @@ def get_trajectory(data, metric, filters=None):
                 y.append(v)
             else:
                 break
+        elif epoch == 0:
+            continue
+        else:
+            break
 
     return x, y
 
