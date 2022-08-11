@@ -10,7 +10,7 @@ makedir_if_not_exist(dir_figures)
 
 
 class Drawer:
-    def __init__(self, num_row=1, num_col=1, unit_length=10):
+    def __init__(self, num_row=1, num_col=1, unit_length=10, unit_row_length=None, unit_col_length=None):
         """
         Init the drawer with the (width=num_col*unit_length, height=num_row*unit_length).
         :param num_row: the number of rows
@@ -19,10 +19,14 @@ class Drawer:
         :type num_col: int
         :param unit_length: the length of unit
         :type unit_length: float
+        :param unit_row_length: the length of unit for rows
+        :param unit_col_length: the length of unit for cols
         """
         self.num_row = num_row
         self.num_col = num_col
-        self.figure = figure(figsize=(num_col * unit_length, num_row * unit_length))
+        unit_row_length = unit_length if unit_row_length is None else unit_row_length
+        unit_col_length = unit_length if unit_col_length is None else unit_col_length
+        self.figure = figure(figsize=(num_col * unit_row_length, num_row * unit_col_length))
 
     def add_one_empty_axes(self, index=1, nrows=None, ncols=None,
                            title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
