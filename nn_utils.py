@@ -8,6 +8,8 @@ import tensorflow as tf
 import torch
 from sklearn.metrics import roc_auc_score, confusion_matrix, accuracy_score, log_loss, f1_score, precision_score
 
+from zarth_utils.general_utils import makedir_if_not_exist, get_random_time_stamp
+
 
 def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=False):
     """
@@ -135,10 +137,10 @@ def load_checkpoint(path_load, **kwargs):
 
 
 class EarlyStoppingManager:
-    def __init__(self, path_best_model, max_no_improvement=10, greater_is_better=True):
+    def __init__(self, path_best_ckpt, max_no_improvement=10, greater_is_better=True):
         self.greater_is_better = greater_is_better
         self.max_no_improvement = max_no_improvement
-        self.path_best_model = path_best_model
+        self.path_best_ckpt = path_best_ckpt
 
         self.best_score = None
         self.best_epoch = None
@@ -165,7 +167,7 @@ class EarlyStoppingManager:
             self.no_improvement = 0
             self.best_score = score * self._sign()
             self.best_epoch = epoch
-            save_checkpoint(self.path_best_model, early_stop_manager=self, **kwargs)
+            save_checkpoint(self.path_best_ckpt, early_stop_manager=self, **kwargs)
             return False
         else:
             self.no_improvement += 1
@@ -188,3 +190,26 @@ class EarlyStoppingManager:
         self.best_score = state["best_score"]
         self.best_epoch = state["best_epoch"]
         self.no_improvement = state["no_improvement"]
+
+
+def get_all_paths(path_exp, phase=None, add_time_stamp=True):
+    """
+    :param path_exp: the path to the experiment, all files will be saved under this path
+    :param phase: what you are doing right now, e.g., "train" or "eval", or you could leave it blank and a random name
+    would be assigned
+    :param add_time_stamp: whether add a time stamp under phase (if provided)
+    :return:
+    """
+    makedir_if_not_exist(path_exp)
+    if phase is None:
+        phase = get_random_time_stamp()
+    elif add_time_stamp:
+        phase = "-".join([phase, get_random_time_stamp()])
+
+    return {
+        "path_record": os.path.join(path_exp, phase),
+        "path_config": os.path.join(path_exp, phase),
+        "path_log": os.path.join(path_exp, phase),
+        "path_best_ckpt": os.path.join(path_exp, "best_ckpt"),
+        "path_ckpt": os.path.join(path_exp, "ckpt_%d")
+    }
