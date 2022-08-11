@@ -1,6 +1,7 @@
 import os
 import random
 import datetime
+import numpy as np
 
 
 def get_random_time_stamp():
@@ -20,3 +21,15 @@ def makedir_if_not_exist(name):
     """
     if not os.path.exists(name):
         os.makedirs(name)
+
+
+def random_split(n, ratio=(0.8, 0.1, 0.1)):
+    assert sum(ratio) == 1.0
+    ret = []
+    order = np.random.permutation(n)
+    s = 0
+    for r in ratio:
+        e = s + int(r * n)
+        ret.append(order[s: e])
+        s = e
+    return ret
