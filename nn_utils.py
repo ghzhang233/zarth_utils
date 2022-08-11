@@ -213,3 +213,46 @@ def get_all_paths(path_exp, phase=None, add_time_stamp=True):
         "path_best_ckpt": os.path.join(path_exp, "best_ckpt"),
         "path_ckpt": os.path.join(path_exp, "ckpt_%d")
     }
+
+
+class DatasetWrapper:
+    def __init__(self, raw_data):
+        """
+        :param raw_data: must be a list of whatever, e.g., raw_data = [x, y, z]
+        """
+        super().__init__()
+        assert type(raw_data) is list
+        self.data = raw_data
+
+    def __len__(self):
+        return len(self.data[0])
+
+    def __getitem__(self, index):
+        return tuple([index] + [d[index] for d in self.data])
+
+    def __iter__(self):
+        return zip(*([np.arange(self.__len__())] + self.data))
+
+
+class DataloaderWrapper:
+    def __init__(self, dl, supplement=None):
+        """
+        Warp the dataloader so that some data could be supplemented.
+        :param dl: idx must be in as its first return during iteration, like (idx, x, y, z)
+        :param supplement: the supplemented data, should be the same length with data[i] for any i
+        """
+        self.dl = dl
+        self.supplement = supplement
+
+    def __iter__(self):
+        self.dl_iter = iter(self.dl)
+        return self
+
+    def __next__(self):
+        batch = list(self.dl_iter.__next__())
+        idx = batch[0]
+        s = None if self.supplement is None else torch.tensor(self.supplement[idx])
+        return tuple(batch + [s])
+
+    def __len__(self):
+        return len(self.dl)
