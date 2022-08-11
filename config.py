@@ -113,3 +113,31 @@ class Config:
 def argparse2config(args):
     args_dict = vars(args)
     return Config(default_config_dict=args_dict, use_argparse=False)
+
+
+def is_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
+    config_a, config_b = config_a.to_dict(), config_b.to_dict()
+
+    # make sure config A is always equal or longer than config B
+    if len(config_a.keys()) < len(config_b.keys()):
+        swap_var = config_a
+        config_a = config_b
+        config_b = swap_var
+
+    if len(config_a.keys() - config_b.keys()) > 1:
+        logging.error(
+            "Different config numbers: %d (Existing) : %d (New)!" % (len(config_a.keys()), len(config_b.keys())))
+        return False
+    elif len(config_a.keys() - config_b.keys()) == 1 and (config_a.keys() - config_b.keys())[0] != "config_file":
+        logging.error(
+            "Different config numbers: %d (Existing) : %d (New)!" % (len(config_a.keys()), len(config_b.keys())))
+        return False
+    else:
+        for i in config_a.keys() & config_b.keys():
+            _ai = tuple(config_a[i]) if type(config_a[i]) == list else config_a[i]
+            _bi = tuple(config_b[i]) if type(config_b[i]) == list else config_b[i]
+            if _ai != _bi and i not in ignored_keys:
+                logging.error("Mismatch in %s: %s (Existing) - %s (New)" % (str(i), str(config_a[i]), str(config_b[i])))
+                return False
+
+    return True
