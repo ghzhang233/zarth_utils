@@ -68,6 +68,11 @@ class Config:
 
         for k in self.__parameters.keys():
             assert k != "__parameters"
+            assert k != "__getitem__"
+            assert k != "to_dict"
+            assert k != "show"
+            assert k != "dump"
+            assert k != "keys"
             setattr(self, k, self.__parameters[k])
 
     def __getitem__(self, item):
