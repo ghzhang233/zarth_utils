@@ -1,18 +1,18 @@
+import json
 import os
 import shutil
-import json
 import stat
 from json import JSONDecodeError
+
+import git
+import joblib
+import numpy as np
+import pandas as pd
 from tqdm import tqdm
 
-import joblib
-import pandas as pd
-import numpy as np
-import logging
-import git
-
-from zarth_utils.general_utils import get_random_time_stamp
 from zarth_utils.config import Config
+from zarth_utils.general_utils import get_random_time_stamp
+from zarth_utils.logger import logging_info
 
 
 class ResultRecorder:
@@ -95,9 +95,9 @@ class ResultRecorder:
         """
         self.__setitem__(key, value)
         if msg is None:
-            logging.info("%s: %s" % (key, str(value)))
+            logging_info("%s: %s" % (key, str(value)))
         else:
-            logging.info(msg % value)
+            logging_info(msg % value)
 
     def end_recording(self):
         """
@@ -133,7 +133,7 @@ class ResultRecorder:
         """
         To show the reuslts in logger.
         """
-        logging.info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging_info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
 def load_result(path_record, return_type="dict"):

@@ -1,4 +1,3 @@
-import logging
 import os
 import random
 from collections import defaultdict
@@ -9,6 +8,7 @@ import torch
 from sklearn.metrics import roc_auc_score, confusion_matrix, accuracy_score, log_loss, f1_score, precision_score
 
 from zarth_utils.general_utils import makedir_if_not_exist, get_random_time_stamp
+from zarth_utils.logger import logging_info
 
 
 def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=False):
@@ -172,7 +172,7 @@ class EarlyStoppingManager:
         else:
             self.no_improvement += 1
             if self.no_improvement == self.max_no_improvement:
-                logging.info("Early Stop at Epoch %d with Score %.3lf." % (self.best_epoch, self.get_best_score()))
+                logging_info("Early Stop at Epoch %d with Score %.3lf." % (self.best_epoch, self.get_best_score()))
                 return True
 
     def state_dict(self):

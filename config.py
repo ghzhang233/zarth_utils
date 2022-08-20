@@ -4,6 +4,7 @@ import argparse
 import logging
 
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
+from zarth_utils.logger import logging_info
 
 dir_configs = os.path.join(os.getcwd(), "configs")
 
@@ -96,7 +97,7 @@ class Config:
         """
         Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
         """
-        logging.info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging_info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def dump(self, path_dump=None):
         """

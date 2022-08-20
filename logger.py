@@ -1,6 +1,7 @@
-import sys
 import logging
-from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
+import sys
+
+from zarth_utils.general_utils import get_random_time_stamp
 
 
 def get_logger(path_log="%s.log" % get_random_time_stamp()):
@@ -28,3 +29,11 @@ def get_logger(path_log="%s.log" % get_random_time_stamp()):
         ret_logger.addHandler(fh)
 
     return ret_logger
+
+
+def logging_info(*args):
+    if logging.root.level > logging.getLevelName("INFO"):
+        logging.warning("Logging level higher than INFO!")
+        print(*args)
+    else:
+        logging.info(*args)
