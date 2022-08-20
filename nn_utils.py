@@ -3,12 +3,25 @@ import random
 from collections import defaultdict
 
 import numpy as np
-import tensorflow as tf
-import torch
-from sklearn.metrics import roc_auc_score, confusion_matrix, accuracy_score, log_loss, f1_score, precision_score
+import logging
 
 from zarth_utils.general_utils import makedir_if_not_exist, get_random_time_stamp
 from zarth_utils.logger import logging_info
+
+try:
+    import tensorflow as tf
+except ModuleNotFoundError as err:
+    logging.warning("Tensorflow not installed!")
+
+try:
+    import torch
+except ModuleNotFoundError as err:
+    logging.warning("Pytorch not installed!")
+
+try:
+    from sklearn.metrics import roc_auc_score, confusion_matrix, accuracy_score, log_loss, f1_score, precision_score
+except ModuleNotFoundError as err:
+    logging.warning("Scikit-learn not installed!")
 
 
 def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=False):
