@@ -115,7 +115,17 @@ class Config:
         return self.__parameters.keys()
 
 
-def argparse2config(args):
+def get_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config_file", type=str, default=None)
+    return parser
+
+
+def parser2config(parser):
+    return args2config(parser.parse_args())
+
+
+def args2config(args):
     args_dict = vars(args)
     return Config(default_config_dict=args_dict, use_argparse=False)
 
