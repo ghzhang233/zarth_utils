@@ -39,7 +39,6 @@ class Config:
         # load from default config file
         if default_config_dict is not None:
             self.__parameters.update(default_config_dict)
-            assert not use_argparse
         else:
             self.__parameters.update(json.load(open(default_config_file, "r", encoding="utf-8")))
 
