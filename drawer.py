@@ -29,8 +29,7 @@ class Drawer:
         self.figure = figure(figsize=(num_col * unit_row_length, num_row * unit_col_length))
 
     def add_one_empty_axes(self, index=1, nrows=None, ncols=None,
-                           title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
-                           fontsize=15, xlim=None, ylim=None):
+                           title="", xlabel="", ylabel="", fontsize=15, xlim=None, ylim=None):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
@@ -45,9 +44,6 @@ class Drawer:
         :type xlabel: str
         :param ylabel: the label for x axis
         :type ylabel: str
-        :param use_marker: whether use markers to mark the points, default=False
-        :type use_marker: bool
-        :param linewidth: the width of the lines for mode "plot", or the size of the points for mode "scatter"
         :param fontsize: the size of the fonts
         :param xlim: the range of x axis, (low, upp)
         :param ylim: the range of y axis, (low, upp)
@@ -73,7 +69,7 @@ class Drawer:
 
     def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
                       title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
-                      fontsize=15, xlim=None, ylim=None, smooth=0, mode="plot"):
+                      fontsize=15, xlim=None, ylim=None, smooth=0, mode="plot", **kwargs):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis, list
@@ -103,7 +99,7 @@ class Drawer:
         :rtype:
         """
         ax = self.add_one_empty_axes(index, nrows, ncols, title, xlabel, ylabel,
-                                     use_marker, linewidth, fontsize, xlim, ylim)
+                                     fontsize, xlim, ylim)
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
@@ -131,7 +127,6 @@ class Drawer:
 
             fmt = next(format_generator)
 
-            kwargs = dict()
             if labels is not None:
                 kwargs["label"] = labels[i]
             if mode == "plot":
