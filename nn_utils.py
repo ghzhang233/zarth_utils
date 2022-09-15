@@ -139,7 +139,7 @@ def torch_save(obj, f, **kwargs):
 
 def save_checkpoint(path_save, **kwargs):
     checkpoint = {k: kwargs[k].state_dict() for k in kwargs if kwargs[k] is not None}
-    torch_save(checkpoint, path_save)
+    torch.save(checkpoint, path_save)
 
 
 def load_checkpoint(path_load, **kwargs):
