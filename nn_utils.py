@@ -185,7 +185,8 @@ class EarlyStoppingManager:
         else:
             self.no_improvement += 1
             if self.no_improvement == self.max_no_improvement:
-                logging_info("Early Stop at Epoch %d with Score %.3lf." % (self.best_epoch, self.get_best_score()))
+                logging_info("Early Stop at Epoch %d with Score %.3lf." % (
+                    self.best_epoch, self.get_best_score() * self._sign()))
                 return True
 
     def state_dict(self):
