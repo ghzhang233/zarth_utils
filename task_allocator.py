@@ -3,7 +3,7 @@ import os
 from threading import Thread, Lock
 import subprocess
 
-from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
+from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist, get_datetime
 
 dir_log = os.path.join(os.getcwd(), ".task_allocator_log")
 makedir_if_not_exist(dir_log)
@@ -47,6 +47,7 @@ class TaskAllocator:
         self.log_lock.release()
 
     def run_task(self, command, restart_if_fail=False):
+        start_time = get_datetime()
         self.add_running_command(command)
         proc = subprocess.run(command, shell=True, capture_output=True)
 
@@ -57,11 +58,18 @@ class TaskAllocator:
             proc = subprocess.run(command, shell=True, capture_output=True)
             num_restart += 1
 
+        end_time = get_datetime()
         self.remove_running_command(command)
         if proc.returncode == 0:
-            self.add_successful_command(command, stdout=proc.stdout, stderr=proc.stderr, **log_restart)
+            self.add_successful_command(
+                command, stdout=proc.stdout, stderr=proc.stderr,
+                start_time=start_time, end_time=end_time, **log_restart
+            )
         else:
-            self.add_failed_command(command, stdout=proc.stdout, stderr=proc.stderr, **log_restart)
+            self.add_failed_command(
+                command, stdout=proc.stdout, stderr=proc.stderr,
+                start_time=start_time, end_time=end_time, **log_restart
+            )
 
     def show_menu(self):
         while True:

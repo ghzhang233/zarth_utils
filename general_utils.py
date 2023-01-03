@@ -4,13 +4,17 @@ import datetime
 import numpy as np
 
 
+def get_datetime():
+    return datetime.datetime.now().strftime('%Y.%m.%d-%H.%M.%S')
+
+
 def get_random_time_stamp():
     """
     Return a random time stamp.
     :return: random time stamp
     :rtype: str
     """
-    return "%d-%s" % (random.randint(100, 999), datetime.datetime.now().strftime('%Y.%m.%d-%H.%M.%S'))
+    return "%d-%s" % (random.randint(100, 999), get_datetime())
 
 
 def makedir_if_not_exist(name):
