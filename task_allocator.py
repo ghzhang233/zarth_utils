@@ -11,21 +11,37 @@ makedir_if_not_exist(dir_log)
 
 class TaskAllocator:
     def __init__(self):
-        self.running_commands, self.running_commands_lock = set(), Lock()
+        self.running_commands, self.running_commands_lock = dict(), Lock()
         self.successful_commands, self.successful_commands_lock = list(), Lock()
         self.failed_commands, self.failed_commands_lock = list(), Lock()
         self.path_log, self.log_lock = os.path.join(dir_log, get_random_time_stamp()), Lock()
+        self.command_id, self.command_id_lock = 0, Lock()
         self.num_max_restart = 10
 
-    def add_running_command(self, command):
+    def assign_command_id(self):
+        self.command_id_lock.acquire()
+        ret = self.command_id
+        self.command_id += 1
+        self.command_id_lock.release()
+        return ret
+
+    def add_running_command(self, command_id, command):
         self.running_commands_lock.acquire()
-        self.running_commands.add(command)
+        self.running_commands[command_id] = command
         self.running_commands_lock.release()
 
-    def remove_running_command(self, command):
+    def remove_running_command(self, command_id):
         self.running_commands_lock.acquire()
-        self.running_commands.remove(command)
+        self.running_commands.pop(command_id)
         self.running_commands_lock.release()
+
+    def get_num_finished_task(self):
+        self.successful_commands_lock.acquire()
+        self.failed_commands_lock.acquire()
+        ret = len(self.successful_commands) + len(self.failed_commands)
+        self.successful_commands_lock.release()
+        self.failed_commands_lock.release()
+        return ret
 
     def add_successful_command(self, command, stdout=None, stderr=None, **kwargs):
         self.successful_commands_lock.acquire()
@@ -48,7 +64,8 @@ class TaskAllocator:
 
     def run_task(self, command, restart_if_fail=False):
         start_time = get_datetime()
-        self.add_running_command(command)
+        command_id = self.assign_command_id()
+        self.add_running_command(command_id, command)
         proc = subprocess.run(command, shell=True, capture_output=True)
 
         num_restart, log_restart = 0, {}
@@ -109,8 +126,8 @@ class TaskAllocator:
                 else:
                     print("File does not exist!")
             elif option == 5:
-                for i in self.running_commands:
-                    print(i)
+                for i in sorted(self.running_commands.keys()):
+                    print(i, self.running_commands[i])
             elif option == 6:
                 for i in self.successful_commands:
                     print(i)
