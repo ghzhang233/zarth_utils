@@ -38,6 +38,8 @@ def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=False):
     np.random.seed(seed)
     if not no_torch:
         torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
         if deterministic:
             torch.backends.cudnn.benchmark = False
             torch.backends.cudnn.deterministic = True
