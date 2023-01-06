@@ -3,22 +3,31 @@ import json
 import argparse
 import logging
 
+import yaml
+
 from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
 from zarth_utils.logger import logging_info
 
 dir_configs = os.path.join(os.getcwd(), "configs")
 
 
+def smart_load(path_file):
+    if path_file.endswith("json"):
+        return json.load(open(path_file, "r", encoding="utf-8"))
+    elif path_file.endswith("yaml"):
+        return yaml.safe_load(open(path_file, "r", encoding="utf-8"))
+    else:
+        logging.warning("Un-identified file type. It will be processed as json by default.")
+        return json.load(open(path_file, "r", encoding="utf-8"))
+
+
 class Config:
-    def __init__(self,
-                 default_config_file=os.path.join(os.getcwd(), "default_config.json"),
-                 default_config_dict=None,
-                 use_argparse=True):
+    def __init__(self, default_config_file=None, default_config_dict=None, use_argparse=True):
         """
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
-        provided! If both are provided, only the dict will be used. The keys will be transferred to argument names,
-        and the type will be automatically detected. The priority is the user specified parameter (if the use_argparse
-        is True) > user specified config file > default config dict > default config file.
+        provided! The keys will be transferred to argument names, and the type will be automatically detected. The
+        priority is ``the user specified parameter (if the use_argparse is True)'' > ``user specified config file (if
+        the use_argparse is True)'' > ``default config dict'' > ``default config file''.
 
         Examples:
         default_config_dict = {"lr": 0.01, "optimizer": "sgd", "num_epoch": 30, "use_early_stop": False}
@@ -37,11 +46,19 @@ class Config:
         self.__parameters = {}
 
         # load from default config file
+        if default_config_dict is None and default_config_file is None:
+            if os.path.exists(os.path.join(os.getcwd(), "default_config.json")):
+                default_config_file = os.path.join(os.getcwd(), "default_config.json")
+            else:
+                logging.error("Either default_config_file or default_config_dict must be provided!")
+                raise NotImplementedError
+
+        if default_config_file is not None:
+            self.__parameters.update(smart_load(default_config_file))
         if default_config_dict is not None:
             self.__parameters.update(default_config_dict)
-        else:
-            self.__parameters.update(json.load(open(default_config_file, "r", encoding="utf-8")))
 
+        # transform the param terms into argparse
         if use_argparse:
             parser = argparse.ArgumentParser()
             parser.add_argument("--config_file", type=str, default=None)
@@ -53,12 +70,15 @@ class Config:
                     parser.add_argument("--no-%s" % name_param, dest="%s" % name_param, action="store_false")
                 elif type(value_param) is list:
                     parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
+                elif type(value_param) is dict:
+                    logging.warning("Nested config term \"%s\" is not supported for automatic argparse!" % name_param)
+                    continue
                 else:
                     parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
             args = parser.parse_args()
 
             if args.config_file is not None:
-                self.__parameters.update(json.load(open(args.config_file, "r", encoding="utf-8")))
+                self.__parameters.update(smart_load(args.config_file))
 
             updated_parameters = dict()
             args_dict = vars(args)
@@ -107,8 +127,8 @@ class Config:
         """
         if path_dump is None:
             makedir_if_not_exist(dir_configs)
-            path_dump = os.path.join(dir_configs, "%s.config" % get_random_time_stamp())
-        path_dump = "%s.config" % path_dump if not path_dump.endswith(".config") else path_dump
+            path_dump = os.path.join(dir_configs, "%s.json" % get_random_time_stamp())
+        path_dump = "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
         assert not os.path.exists(path_dump)
         with open(path_dump, "w", encoding="utf-8") as fout:
             json.dump(self.__parameters, fout)
