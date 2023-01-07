@@ -23,14 +23,14 @@ def smart_load(path_file):
 
 class NestedDict:
     def __init__(self, nested_dict=None, unfold_dict=None):
-        self.__nested_dict, self.__unfold_dict = dict(), dict()
+        self._nested_dict, self.__unfold_dict = dict(), dict()
         if nested_dict is not None:
-            self.__nested_dict = nested_dict
-            self.__unfold_loop(self.__nested_dict)
+            self._nested_dict = nested_dict
+            self._unfold_loop(self._nested_dict)
         if unfold_dict is not None:
             self.update(unfold_dict)
 
-    def __unfold_loop(self, x, path=None):
+    def _unfold_loop(self, x, path=None):
         """
         transform nested dict into one-layer manner. e.g. x = {"a": {"b": {"c": 1}}} would be transformed into {"a.b.c": 1}
         """
@@ -45,7 +45,7 @@ class NestedDict:
 
         for k in x.keys():
             assert "." not in k, "dict key must not contain \".\" for nested dict!"
-            self.__unfold_loop(x[k], path=path.copy() + [k])
+            self._unfold_loop(x[k], path=path.copy() + [k])
 
     def __setitem__(self, unfold_key, value):
         """
@@ -56,7 +56,7 @@ class NestedDict:
         value = self.__unfold_dict[unfold_key]
         assert type(value) is not dict, "dict value must not be dict for unfold dict!"
 
-        cur_dict = self.__nested_dict
+        cur_dict = self._nested_dict
         for i in range(len(key_list)):
             key = key_list[i]
             if i == len(key_list) - 1:
@@ -82,7 +82,7 @@ class NestedDict:
         return self.__unfold_dict.keys()
 
     def nested_keys(self):
-        return self.__nested_dict.keys()
+        return self._nested_dict.keys()
 
     def keys(self):
         ret = set(self.unfold_keys())
@@ -93,13 +93,13 @@ class NestedDict:
         if "." in key:
             return self.__unfold_dict[key]
         else:
-            return self.__nested_dict[key]
+            return self._nested_dict[key]
 
     def show(self):
         """
         Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
         """
-        logging_info("\n%s" % json.dumps(self.__nested_dict, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging_info("\n%s" % json.dumps(self._nested_dict, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def to_dict(self):
         """
@@ -107,7 +107,7 @@ class NestedDict:
         :return: config dict
         :rtype: dict
         """
-        return self.__nested_dict
+        return self._nested_dict
 
 
 class Config(NestedDict):
@@ -174,8 +174,14 @@ class Config(NestedDict):
             self.update(updated_parameters)
 
         for k in self.nested_keys():
-            assert k != "__parameters"
+            assert k != "__nested_dict"
+            assert k != "__unfold_dict"
+            assert k != "unfold_keys"
+            assert k != "nested_keys"
+            assert k != "keys"
             assert k != "__getitem__"
+            assert k != "__setitem__"
+            assert k != "update"
             assert k != "to_dict"
             assert k != "show"
             assert k != "dump"
@@ -194,7 +200,7 @@ class Config(NestedDict):
         path_dump = "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
         assert not os.path.exists(path_dump)
         with open(path_dump, "w", encoding="utf-8") as fout:
-            json.dump(self.__parameters, fout)
+            json.dump(self._nested_dict, fout)
 
 
 def get_parser():
