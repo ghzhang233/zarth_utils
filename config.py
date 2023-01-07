@@ -14,7 +14,7 @@ dir_configs = os.path.join(os.getcwd(), "configs")
 def smart_load(path_file):
     if path_file.endswith("json"):
         return json.load(open(path_file, "r", encoding="utf-8"))
-    elif path_file.endswith("yaml"):
+    elif path_file.endswith("yaml") or path_file.endswith("yml"):
         return yaml.safe_load(open(path_file, "r", encoding="utf-8"))
     else:
         logging.warning("Un-identified file type. It will be processed as json by default.")
