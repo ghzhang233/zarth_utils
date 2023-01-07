@@ -21,7 +21,96 @@ def smart_load(path_file):
         return json.load(open(path_file, "r", encoding="utf-8"))
 
 
-class Config:
+class NestedDict:
+    def __init__(self, nested_dict=None, unfold_dict=None):
+        self.__nested_dict, self.__unfold_dict = dict(), dict()
+        if nested_dict is not None:
+            self.__nested_dict = nested_dict
+            self.__unfold_loop(self.__nested_dict)
+        if unfold_dict is not None:
+            self.update(unfold_dict)
+
+    def __unfold_loop(self, x, path=None):
+        """
+        transform nested dict into one-layer manner. e.g. x = {"a": {"b": {"c": 1}}} would be transformed into {"a.b.c": 1}
+        """
+        if path is None:
+            path = []
+
+        if type(x) is not dict:
+            key = ".".join([str(i) for i in path])
+            value = x
+            self.__unfold_dict[key] = value
+            return
+
+        for k in x.keys():
+            assert "." not in k, "dict key must not contain \".\" for nested dict!"
+            self.__unfold_loop(x[k], path=path.copy() + [k])
+
+    def __setitem__(self, unfold_key, value):
+        """
+        only support set value for unfold dict with unfold key!
+        """
+        self.__unfold_dict[unfold_key] = value
+        key_list = unfold_key.split(".")
+        value = self.__unfold_dict[unfold_key]
+        assert type(value) is not dict, "dict value must not be dict for unfold dict!"
+
+        cur_dict = self.__nested_dict
+        for i in range(len(key_list)):
+            key = key_list[i]
+            if i == len(key_list) - 1:
+                cur_dict[key] = value
+            else:
+                if key in cur_dict.keys():
+                    assert type(cur_dict[key]) is dict
+                else:
+                    cur_dict[key] = dict()
+                cur_dict = cur_dict[key]
+
+    def update(self, new_dict):
+        if type(new_dict) is NestedDict:
+            self.update(new_dict.__unfold_dict)
+        elif type(new_dict) is dict:
+            for k in new_dict:
+                v = new_dict[k]
+                self[k] = v
+        else:
+            raise NotImplementedError
+
+    def unfold_keys(self):
+        return self.__unfold_dict.keys()
+
+    def nested_keys(self):
+        return self.__nested_dict.keys()
+
+    def keys(self):
+        ret = set(self.unfold_keys())
+        ret.update(set(self.nested_keys()))
+        return ret
+
+    def __getitem__(self, key):
+        if "." in key:
+            return self.__unfold_dict[key]
+        else:
+            return self.__nested_dict[key]
+
+    def show(self):
+        """
+        Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
+        """
+        logging_info("\n%s" % json.dumps(self.__nested_dict, sort_keys=True, indent=4, separators=(',', ': ')))
+
+    def to_dict(self):
+        """
+        Return the config as a dict
+        :return: config dict
+        :rtype: dict
+        """
+        return self.__nested_dict
+
+
+class Config(NestedDict):
     def __init__(self, default_config_file=None, default_config_dict=None, use_argparse=True):
         """
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
@@ -43,7 +132,7 @@ class Config:
         :param default_config_file: the default config file path
         :type default_config_file: str
         """
-        self.__parameters = {}
+        super(Config, self).__init__()
 
         # load from default config file
         if default_config_dict is None and default_config_file is None:
@@ -54,70 +143,44 @@ class Config:
                 raise NotImplementedError
 
         if default_config_file is not None:
-            self.__parameters.update(smart_load(default_config_file))
+            self.update(NestedDict(nested_dict=smart_load(default_config_file)))
         if default_config_dict is not None:
-            self.__parameters.update(default_config_dict)
+            self.update(NestedDict(nested_dict=default_config_dict))
 
         # transform the param terms into argparse
         if use_argparse:
             parser = argparse.ArgumentParser()
             parser.add_argument("--config_file", type=str, default=None)
             # add argument parser
-            for name_param in self.__parameters.keys():
-                value_param = self.__parameters[name_param]
+            for name_param in self.unfold_keys():
+                value_param = self[name_param]
                 if type(value_param) is bool:
                     parser.add_argument("--%s" % name_param, action="store_true", default=value_param)
                     parser.add_argument("--no-%s" % name_param, dest="%s" % name_param, action="store_false")
                 elif type(value_param) is list:
                     parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
-                elif type(value_param) is dict:
-                    logging.warning("Nested config term \"%s\" is not supported for automatic argparse!" % name_param)
-                    continue
                 else:
                     parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
             args = parser.parse_args()
 
             if args.config_file is not None:
-                self.__parameters.update(smart_load(args.config_file))
+                self.update(NestedDict(nested_dict=smart_load(args.config_file)))
 
             updated_parameters = dict()
             args_dict = vars(args)
             for k in vars(args):
-                if k != "config_file" and self.__parameters[k] != args_dict[k]:
+                if k != "config_file" and self[k] != args_dict[k]:
                     updated_parameters[k] = args_dict[k]
-            self.__parameters.update(updated_parameters)
+            self.update(updated_parameters)
 
-        for k in self.__parameters.keys():
+        for k in self.nested_keys():
             assert k != "__parameters"
             assert k != "__getitem__"
             assert k != "to_dict"
             assert k != "show"
             assert k != "dump"
             assert k != "keys"
-            setattr(self, k, self.__parameters[k])
-
-    def __getitem__(self, item):
-        """
-        Return the config[item]
-        :param item: the key of interest
-        :type item: str
-        :return: config[item]
-        """
-        return self.__parameters[item]
-
-    def to_dict(self):
-        """
-        Return the config as a dict
-        :return: config dict
-        :rtype: dict
-        """
-        return self.__parameters
-
-    def show(self):
-        """
-        Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
-        """
-        logging_info("\n%s" % json.dumps(self.__parameters, sort_keys=True, indent=4, separators=(',', ': ')))
+            setattr(self, k, self[k])
 
     def dump(self, path_dump=None):
         """
@@ -132,9 +195,6 @@ class Config:
         assert not os.path.exists(path_dump)
         with open(path_dump, "w", encoding="utf-8") as fout:
             json.dump(self.__parameters, fout)
-
-    def keys(self):
-        return self.__parameters.keys()
 
 
 def get_parser():
