@@ -22,40 +22,19 @@ def smart_load(path_file):
 
 
 class NestedDict:
-    def __init__(self, nested_dict=None, unfold_dict=None):
-        self._nested_dict, self.__unfold_dict = dict(), dict()
+    def __init__(self, nested_dict=None):
+        self._nested_dict = dict()
         if nested_dict is not None:
             self._nested_dict = nested_dict
-            self._unfold_loop(self._nested_dict)
-        if unfold_dict is not None:
-            self.update(unfold_dict)
 
-    def _unfold_loop(self, x, path=None):
-        """
-        transform nested dict into one-layer manner. e.g. x = {"a": {"b": {"c": 1}}} would be transformed into {"a.b.c": 1}
-        """
-        if path is None:
-            path = []
+    def __getitem__(self, key):
+        ret = self._nested_dict
+        for k in key.split("."):
+            ret = ret[k]
+        return ret
 
-        if type(x) is not dict:
-            key = ".".join([str(i) for i in path])
-            value = x
-            self.__unfold_dict[key] = value
-            return
-
-        for k in x.keys():
-            assert "." not in k, "dict key must not contain \".\" for nested dict!"
-            self._unfold_loop(x[k], path=path.copy() + [k])
-
-    def __setitem__(self, unfold_key, value):
-        """
-        only support set value for unfold dict with unfold key!
-        """
-        self.__unfold_dict[unfold_key] = value
-        key_list = unfold_key.split(".")
-        value = self.__unfold_dict[unfold_key]
-        assert type(value) is not dict, "dict value must not be dict for unfold dict!"
-
+    def __setitem__(self, key, value):
+        key_list = key.split(".")
         cur_dict = self._nested_dict
         for i in range(len(key_list)):
             key = key_list[i]
@@ -68,32 +47,28 @@ class NestedDict:
                     cur_dict[key] = dict()
                 cur_dict = cur_dict[key]
 
-    def update(self, new_dict):
-        if type(new_dict) is NestedDict:
-            self.update(new_dict.__unfold_dict)
-        elif type(new_dict) is dict:
-            for k in new_dict:
-                v = new_dict[k]
-                self[k] = v
-        else:
-            raise NotImplementedError
+    def update(self, new_dict, prefix=None):
+        for k in new_dict:
+            key = ".".join([prefix, k]) if prefix is not None else k
+            value = new_dict[k]
+            if type(value) is dict:
+                self.update(value, prefix=key)
+            else:
+                self[key] = value
 
-    def unfold_keys(self):
-        return self.__unfold_dict.keys()
+    def keys(self, cur=None, prefix=None):
+        if cur is None:
+            cur = self._nested_dict
 
-    def nested_keys(self):
-        return self._nested_dict.keys()
-
-    def keys(self):
-        ret = set(self.unfold_keys())
-        ret.update(set(self.nested_keys()))
+        ret = []
+        for k in cur.keys():
+            v = cur[k]
+            new_prefix = ".".join([prefix, k]) if prefix is not None else k
+            if type(v) is dict:
+                ret += self.keys(cur=v, prefix=new_prefix)
+            else:
+                ret.append(new_prefix)
         return ret
-
-    def __getitem__(self, key):
-        if "." in key:
-            return self.__unfold_dict[key]
-        else:
-            return self._nested_dict[key]
 
     def show(self):
         """
@@ -143,16 +118,16 @@ class Config(NestedDict):
                 raise NotImplementedError
 
         if default_config_file is not None:
-            self.update(NestedDict(nested_dict=smart_load(default_config_file)))
+            self.update(smart_load(default_config_file))
         if default_config_dict is not None:
-            self.update(NestedDict(nested_dict=default_config_dict))
+            self.update(default_config_dict)
 
         # transform the param terms into argparse
         if use_argparse:
             parser = argparse.ArgumentParser()
             parser.add_argument("--config_file", type=str, default=None)
             # add argument parser
-            for name_param in self.unfold_keys():
+            for name_param in self.keys():
                 value_param = self[name_param]
                 if type(value_param) is bool:
                     parser.add_argument("--%s" % name_param, action="store_true", default=value_param)
@@ -164,7 +139,7 @@ class Config(NestedDict):
             args = parser.parse_args()
 
             if args.config_file is not None:
-                self.update(NestedDict(nested_dict=smart_load(args.config_file)))
+                self.update(smart_load(args.config_file))
 
             updated_parameters = dict()
             args_dict = vars(args)
@@ -173,11 +148,8 @@ class Config(NestedDict):
                     updated_parameters[k] = args_dict[k]
             self.update(updated_parameters)
 
-        for k in self.nested_keys():
-            assert k != "__nested_dict"
-            assert k != "__unfold_dict"
-            assert k != "unfold_keys"
-            assert k != "nested_keys"
+        for k in self._nested_dict.keys():
+            assert k != "_nested_dict"
             assert k != "keys"
             assert k != "__getitem__"
             assert k != "__setitem__"
@@ -186,7 +158,8 @@ class Config(NestedDict):
             assert k != "show"
             assert k != "dump"
             assert k != "keys"
-            setattr(self, k, self[k])
+            if "." not in k:
+                setattr(self, k, self[k])
 
     def dump(self, path_dump=None):
         """
