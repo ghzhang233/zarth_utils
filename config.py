@@ -70,6 +70,14 @@ class NestedDict:
                 ret.append(new_prefix)
         return ret
 
+    def get(self, item, default_value=None):
+        if item in self.keys():
+            return self[item]
+        else:
+            if default_value is None:
+                raise ValueError(f"No {item} in config")
+        return default_value
+
     def show(self):
         """
         Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
