@@ -73,9 +73,6 @@ class NestedDict:
     def get(self, item, default_value=None):
         if item in self.keys():
             return self[item]
-        else:
-            if default_value is None:
-                raise ValueError(f"No {item} in config")
         return default_value
 
     def show(self):
