@@ -31,6 +31,8 @@ class NestedDict:
         ret = self._nested_dict
         for k in key.split("."):
             ret = ret[k]
+        if type(ret) is dict:
+            ret = NestedDict(ret)
         return ret
 
     def __setitem__(self, key, value):
