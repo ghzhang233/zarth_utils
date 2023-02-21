@@ -91,6 +91,20 @@ class NestedDict:
         """
         return self._nested_dict
 
+    def dump(self, path_dump=None):
+        """
+        Dump the config in the path_dump.
+        :param path_dump: the path to dump the config
+        :type path_dump: str
+        """
+        if path_dump is None:
+            makedir_if_not_exist(dir_configs)
+            path_dump = os.path.join(dir_configs, "%s.json" % get_random_time_stamp())
+        path_dump = "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
+        assert not os.path.exists(path_dump)
+        with open(path_dump, "w", encoding="utf-8") as fout:
+            json.dump(self._nested_dict, fout)
+
 
 class Config(NestedDict):
     def __init__(self, default_config_file=None, default_config_dict=None, use_argparse=True):
@@ -167,20 +181,6 @@ class Config(NestedDict):
             assert k != "keys"
             if "." not in k:
                 setattr(self, k, self[k])
-
-    def dump(self, path_dump=None):
-        """
-        Dump the config in the path_dump.
-        :param path_dump: the path to dump the config
-        :type path_dump: str
-        """
-        if path_dump is None:
-            makedir_if_not_exist(dir_configs)
-            path_dump = os.path.join(dir_configs, "%s.json" % get_random_time_stamp())
-        path_dump = "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
-        assert not os.path.exists(path_dump)
-        with open(path_dump, "w", encoding="utf-8") as fout:
-            json.dump(self._nested_dict, fout)
 
 
 def get_parser():
