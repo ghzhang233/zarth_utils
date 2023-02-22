@@ -159,14 +159,15 @@ class Config(NestedDict):
                     parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
             args = parser.parse_args()
 
-            if args.config_file is not None:
-                self.update(smart_load(args.config_file))
-
             updated_parameters = dict()
             args_dict = vars(args)
             for k in vars(args):
                 if k != "config_file" and self[k] != args_dict[k]:
                     updated_parameters[k] = args_dict[k]
+
+            if args.config_file is not None:
+                self.update(smart_load(args.config_file))
+
             self.update(updated_parameters)
 
         for k in self._nested_dict.keys():
