@@ -151,18 +151,19 @@ class Config(NestedDict):
             for name_param in self.keys():
                 value_param = self[name_param]
                 if type(value_param) is bool:
-                    parser.add_argument("--%s" % name_param, action="store_true", default=value_param)
-                    parser.add_argument("--no-%s" % name_param, dest="%s" % name_param, action="store_false")
+                    parser.add_argument("--%s" % name_param, action="store_true", default=None)
+                    parser.add_argument("--no-%s" % name_param, dest="%s" % name_param,
+                                        action="store_false", default=None)
                 elif type(value_param) is list:
-                    parser.add_argument("--%s" % name_param, type=type(value_param[0]), default=value_param, nargs="+")
+                    parser.add_argument("--%s" % name_param, type=type(value_param[0]), nargs="+", default=None)
                 else:
-                    parser.add_argument("--%s" % name_param, type=type(value_param), default=value_param)
+                    parser.add_argument("--%s" % name_param, type=type(value_param), default=None)
             args = parser.parse_args()
 
             updated_parameters = dict()
             args_dict = vars(args)
             for k in vars(args):
-                if k != "config_file" and self[k] != args_dict[k]:
+                if k != "config_file" and self[k] != args_dict[k] and args_dict[k] is not None:
                     updated_parameters[k] = args_dict[k]
 
             if args.config_file is not None:
