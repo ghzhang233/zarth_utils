@@ -31,6 +31,8 @@ class NestedDict:
         ret = self._nested_dict
         for k in key.split("."):
             ret = ret[k]
+        if type(ret) is dict:
+            ret = NestedDict(ret)
         return ret
 
     def __setitem__(self, key, value):
@@ -51,7 +53,7 @@ class NestedDict:
         for k in new_dict:
             key = ".".join([prefix, k]) if prefix is not None else k
             value = new_dict[k]
-            if type(value) is dict:
+            if type(value) is dict or type(value) is NestedDict:
                 self.update(value, prefix=key)
             else:
                 self[key] = value
@@ -64,7 +66,7 @@ class NestedDict:
         for k in cur.keys():
             v = cur[k]
             new_prefix = ".".join([prefix, k]) if prefix is not None else k
-            if type(v) is dict:
+            if type(v) is dict or type(v) is NestedDict:
                 ret += self.keys(cur=v, prefix=new_prefix)
             else:
                 ret.append(new_prefix)
