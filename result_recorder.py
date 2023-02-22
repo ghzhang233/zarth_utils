@@ -55,6 +55,9 @@ class ResultRecorder:
         with open(self.__path_temp_record, "a", encoding="utf-8") as fin:
             fin.write(line + "\n")
 
+    def keys(self):
+        return self.__record.keys()
+
     def __getitem__(self, key):
         """
         Return the item based on the key.
@@ -229,8 +232,15 @@ def collect_dead_results(dir_results):
 
 
 def get_max_epoch(data):
-    max_epoch = max([int(c.split("-")[0].split("_")[1]) for c in data.columns if c.startswith("epoch_")])
-    return max_epoch
+    ret = -0x3f3f3f3f
+    for c in data.columns:
+        if c.startswith("epoch_"):
+            try:
+                epoch = int(c.split("-")[0].split("_")[1])
+            except ValueError:
+                continue
+            ret = max(ret, epoch)
+    return ret
 
 
 def get_recorded_metrics(data):
