@@ -273,7 +273,10 @@ def fill_config_na(data, config_path, prefix="", suffix="", exclude_key=()):
     config = Config(default_config_file=config_path, use_argparse=False)
     for k in config.keys():
         if k not in exclude_key:
-            data[prefix + k + suffix] = data[prefix + k + suffix].fillna(config[k])
+            try:
+                data[prefix + k + suffix] = data[prefix + k + suffix].fillna(config[k])
+            except TypeError:
+                print("Unsupported Data Type: ", k)
     return data
 
 
