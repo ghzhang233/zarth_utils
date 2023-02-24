@@ -269,7 +269,7 @@ def get_trajectory(data, metric, filters=None):
     return x, y
 
 
-def fill_config_na(data, config_path, prefix="", suffix="", exclude_key=None):
+def fill_config_na(data, config_path, prefix="", suffix="", exclude_key=()):
     config = Config(default_config_file=config_path, use_argparse=False)
     for k in config.keys():
         if k not in exclude_key:
