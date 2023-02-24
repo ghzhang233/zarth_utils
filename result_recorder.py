@@ -270,11 +270,30 @@ def get_trajectory(data, metric, filters=None):
 
 
 def fill_config_na(data, config_path, prefix="", suffix="", exclude_key=None):
-    config = Config(default_config_file=config_path)
+    config = Config(default_config_file=config_path, use_argparse=False)
     for k in config.keys():
         if k not in exclude_key:
             data[prefix + k + suffix] = data[prefix + k + suffix].fillna(config[k])
     return data
+
+
+def get_informative_columns(data, config_path):
+    config = Config(default_config_file=config_path, use_argparse=False)
+    config_keys = config.keys()
+    columns_diff = []
+    for c in config_keys:
+        if c in data.columns:
+            try:
+                v = data[c].values
+                if type(v[0]) is list:
+                    v = [tuple(vi) for vi in v]
+                if len(set(v)) != 1:
+                    columns_diff.append(c)
+            except TypeError:
+                print("Unsupported Data or Contains NaN: ", c)
+        else:
+            print("Missed Key: ", c)
+    return columns_diff
 
 
 def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_seed")):
