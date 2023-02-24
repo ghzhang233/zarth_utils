@@ -315,3 +315,45 @@ def remove_duplicate(data, keys=("phase", "exp_name")):
 
 def merge_phase(data, data_to_merge, merge_on_keys=("exp_name",), suffixes=("", "_eval")):
     return data.merge(data_to_merge, how="inner", on=merge_on_keys, suffixes=suffixes)
+
+
+def simple_read_results_pipeline(
+        dir_results,
+        collect_condition_func=None,
+        pickled_filename=".pickled_results.jbl",
+        column_filtering_func=lambda c: False,
+        columns4show=None,
+        columns4group=None,
+        path_default_config=None,
+):
+    all_data = collect_results(dir_results, collect_condition_func, pickled_filename)
+    columns = [c for c in all_data.columns if not column_filtering_func(c)]
+    filtered_data = all_data[columns]
+
+    if columns4show is None:
+        return all_data, filtered_data
+
+    if columns4group is None and path_default_config is not None:
+        filtered_data = fill_config_na(filtered_data, path_default_config)
+        columns_diff = get_informative_columns(filtered_data, path_default_config)
+        columns_diff = [c for c in columns_diff if "exp_name" not in c and "random_seed" not in c]
+        columns4group = columns_diff
+
+    assert columns4group is not None, "Group Keys Unprovided!"
+
+    grouped_data_mean = pd.DataFrame(
+        filtered_data[columns4group + columns4show].groupby(by=columns4group).mean()).reset_index()
+    grouped_data_std = pd.DataFrame(
+        filtered_data[columns4group + columns4show].groupby(by=columns4group).std()).reset_index()
+    grouped_data_count = pd.DataFrame(
+        filtered_data[columns4group + columns4show].groupby(by=columns4group).count()).reset_index()
+
+    grouped_data = merge_phase(grouped_data_mean, grouped_data_std, merge_on_keys=columns4group, suffixes=("", "_std"))
+    grouped_data = merge_phase(grouped_data, grouped_data_count, merge_on_keys=columns4group, suffixes=("", "_count"))
+
+    columns4show_sorted = list(np.concatenate([[c, c + "_std", c + "_count"] for c in columns4show], axis=0))
+
+    grouped_data = grouped_data[columns4group + columns4show_sorted]
+    grouped_data = grouped_data.sort_values(by=columns4show)
+
+    return all_data, filtered_data, grouped_data
