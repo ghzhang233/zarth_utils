@@ -163,7 +163,7 @@ class Config(NestedDict):
             updated_parameters = dict()
             args_dict = vars(args)
             for k in vars(args):
-                if k != "config_file" and self[k] != args_dict[k] and args_dict[k] is not None:
+                if k != "config_file" and args_dict[k] is not None:
                     updated_parameters[k] = args_dict[k]
 
             if args.config_file is not None:
