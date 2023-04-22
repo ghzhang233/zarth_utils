@@ -4,7 +4,7 @@ import sys
 from zarth_utils.general_utils import get_random_time_stamp
 
 
-def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=True):
+def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=False):
     """
     Set up the logger. Note that the setting will also impact the default logging logger, which means that simply
     using logging.info() will output the logs to both stdout and the filename_log.
@@ -37,6 +37,9 @@ def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=Tr
 
 def logging_info(*args):
     if logging.root.level > logging.getLevelName("INFO"):
-        get_logger(path_log=None)
+        logging.root.setLevel(logging.DEBUG)
+        for handler in logging.root.handlers:
+            handler.setLevel(logging.DEBUG)
+        logging.info(*args)
     else:
         logging.info(*args)
