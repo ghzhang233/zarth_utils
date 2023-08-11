@@ -3,7 +3,7 @@ import os
 from threading import Thread, Lock
 import subprocess
 
-from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist, get_datetime
+from .general_utils import get_random_time_stamp, makedir_if_not_exist, get_datetime
 
 dir_log = os.path.join(os.getcwd(), ".task_allocator_log")
 makedir_if_not_exist(dir_log)

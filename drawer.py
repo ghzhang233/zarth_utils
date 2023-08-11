@@ -3,7 +3,7 @@ import numpy as np
 
 from matplotlib.pyplot import figure
 
-from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
+from .general_utils import get_random_time_stamp, makedir_if_not_exist
 
 dir_figures = os.path.join(os.getcwd(), "figures")
 makedir_if_not_exist(dir_figures)

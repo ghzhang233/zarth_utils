@@ -5,8 +5,8 @@ from collections import defaultdict
 import numpy as np
 import logging
 
-from zarth_utils.general_utils import makedir_if_not_exist, get_random_time_stamp
-from zarth_utils.logger import logging_info
+from .general_utils import makedir_if_not_exist, get_random_time_stamp
+from .logger import logging_info
 
 try:
     import tensorflow as tf
@@ -24,7 +24,7 @@ except ModuleNotFoundError as err:
     logging.warning("Scikit-learn not installed!")
 
 
-def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=False):
+def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=True):
     """
     Set the random seed for the reproducibility. Environment variable CUBLAS_WORKSPACE_CONFIG=:4096:8 is also needed.
     :param seed: the random seed
@@ -272,3 +272,15 @@ class DataloaderWrapper:
 
     def __len__(self):
         return len(self.dl)
+
+
+def random_split(n, ratio=(0.8, 0.1, 0.1)):
+    assert sum(ratio) == 1.0
+    ret = []
+    order = np.random.permutation(n)
+    s = 0
+    for r in ratio:
+        e = s + int(r * n)
+        ret.append(order[s: e])
+        s = e
+    return ret

@@ -10,9 +10,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from zarth_utils.config import Config
-from zarth_utils.general_utils import get_random_time_stamp
-from zarth_utils.logger import logging_info
+from .config import Config
+from .general_utils import get_random_time_stamp
+from .logger import logging_info
 
 
 class ResultRecorder:

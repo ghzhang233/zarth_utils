@@ -5,8 +5,8 @@ import logging
 
 import yaml
 
-from zarth_utils.general_utils import get_random_time_stamp, makedir_if_not_exist
-from zarth_utils.logger import logging_info
+from .general_utils import get_random_time_stamp, makedir_if_not_exist
+from .logger import logging_info
 
 dir_configs = os.path.join(os.getcwd(), "configs")
 

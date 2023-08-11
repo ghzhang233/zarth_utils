@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from zarth_utils.general_utils import get_random_time_stamp
+from .general_utils import get_random_time_stamp
 
 
 def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=False):
