@@ -1,7 +1,6 @@
 import os
 import random
 import datetime
-import numpy as np
 
 
 def get_datetime():

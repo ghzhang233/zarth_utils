@@ -1,3 +1,9 @@
+###################################################################################
+# This task allocator is mainly used for the continue training on the clusters with
+# time constraints. After certain experiments is terminated, this allocator would
+# automatically restart it until receiving return code 0. However, I basically forget
+# how to use it and don't have a plan to maintain it anymore. Use it cautiously!
+###################################################################################
 import json
 import os
 from threading import Thread, Lock
