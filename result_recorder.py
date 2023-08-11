@@ -33,6 +33,7 @@ class ResultRecorder:
         """
         self.__ending = False
         self.__record = dict()
+        self.use_wandb = use_wandb
 
         self.__path_temp_record = "%s.result.temp" % path_record if not path_record.endswith(".result") \
             else path_record + ".temp"
@@ -51,8 +52,6 @@ class ResultRecorder:
             repo = git.Repo(path=os.getcwd())
             assert not repo.is_dirty()
             self.__setitem__("git_commit", repo.head.object.hexsha)
-
-        self.use_wandb = use_wandb
 
     def write_record(self, line):
         """
@@ -83,34 +82,36 @@ class ResultRecorder:
         assert key not in self.__record.keys()
         self.__record[key] = value
         self.write_record(json.dumps({key: value}))
+
+    def add(self, key, value, epoch=None):
         if self.use_wandb:
             wandb.log({key: value})
+        if epoch is not None:
+            key = "epoch_%d-%s" % (epoch, key)
+        self.__setitem__(key, value)
 
-    def update(self, new_record):
-        """
-        Update the results from new_record.
-        :param new_record: the new results dict
-        :type new_record: dict
-        """
-        for k in new_record.keys():
-            self.__setitem__(k, new_record[k])
-
-    def add_with_logging(self, key, value, msg=None):
+    def add_with_logging(self, key, value, msg=None, epoch=None):
         """
         Add an item to results and also print with logging. The format of logging can be defined.
         :param key: the key
-        :type key: str
         :param value: the value to be added to the results
         :param msg: the message to the logger, format can be added. e.g. msg="Training set %s=%.4lf."
-        :type msg: str
-        :return:
-        :rtype:
+        :param epoch: current epoch
         """
-        self.__setitem__(key, value)
+        self.add(key, value, epoch)
+        if epoch is not None:
+            key = "epoch_%d-%s" % (epoch, key)
         if msg is None:
             logging_info("%s: %s" % (key, str(value)))
         else:
             logging_info(msg % value)
+
+    def update(self, new_record, epoch=None):
+        """
+        Update the results from new_record.
+        """
+        for k in new_record.keys():
+            self.add(k, new_record[k], epoch)
 
     def end_recording(self):
         """
