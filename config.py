@@ -8,6 +8,11 @@ import yaml
 from .general_utils import get_random_time_stamp, makedir_if_not_exist
 from .logger import logging_info
 
+try:
+    import wandb
+except ModuleNotFoundError as err:
+    logging.warning("WandB not installed!")
+
 dir_configs = os.path.join(os.getcwd(), "configs")
 
 
@@ -27,6 +32,7 @@ class NestedDict:
     Example:
         dict["a"]["b"]["c"] == dict["a.b.c"]
     """
+
     def __init__(self, nested_dict=None):
         self._nested_dict = dict()
         if nested_dict is not None:
@@ -112,7 +118,7 @@ class NestedDict:
 
 
 class Config(NestedDict):
-    def __init__(self, default_config_file=None, default_config_dict=None, use_argparse=True):
+    def __init__(self, default_config_file=None, default_config_dict=None, use_argparse=True, use_wandb=False):
         """
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
         provided! The keys will be transferred to argument names, and the type will be automatically detected. The
@@ -188,6 +194,14 @@ class Config(NestedDict):
             assert k != "keys"
             if "." not in k:
                 setattr(self, k, self[k])
+
+        if use_wandb:
+            wandb.login()
+            wandb.init(
+                project=os.path.split(os.getcwd())[-1],
+                name=self["exp_name"],
+                config=self.to_dict()
+            )
 
 
 def get_parser():

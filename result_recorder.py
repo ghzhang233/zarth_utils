@@ -13,10 +13,16 @@ from tqdm import tqdm
 from .config import Config
 from .general_utils import get_random_time_stamp
 from .logger import logging_info
+import logging
+
+try:
+    import wandb
+except ModuleNotFoundError as err:
+    logging.warning("WandB not installed!")
 
 
 class ResultRecorder:
-    def __init__(self, path_record, initial_record=None, use_git=True):
+    def __init__(self, path_record, initial_record=None, use_git=True, use_wandb=False):
         """
         Initialize the result recorder. The results will be saved in a temporary file defined by path_record.temp.
         To end recording and transfer the temporary files, self.end_recording() must be called.
@@ -45,6 +51,8 @@ class ResultRecorder:
             repo = git.Repo(path=os.getcwd())
             assert not repo.is_dirty()
             self.__setitem__("git_commit", repo.head.object.hexsha)
+
+        self.use_wandb = use_wandb
 
     def write_record(self, line):
         """
@@ -75,6 +83,8 @@ class ResultRecorder:
         assert key not in self.__record.keys()
         self.__record[key] = value
         self.write_record(json.dumps({key: value}))
+        if self.use_wandb:
+            wandb.log({key: value})
 
     def update(self, new_record):
         """
