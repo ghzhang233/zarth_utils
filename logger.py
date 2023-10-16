@@ -28,7 +28,7 @@ def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=Fa
             ret_logger.addHandler(fh)
 
         ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
+        ch.setLevel(logging.INFO)
         ch.setFormatter(formatter)
         ret_logger.addHandler(ch)
 
