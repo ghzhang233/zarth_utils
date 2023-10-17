@@ -29,7 +29,6 @@ class ResultRecorder:
         :param path_record: the saving path of the recorded results.
         :type path_record: str
         :param initial_record: a record to be initialize with, usually the config in practice
-        :type initial_record: dict
         """
         self.__ending = False
         self.__record = dict()
