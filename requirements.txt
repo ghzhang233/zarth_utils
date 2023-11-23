@@ -3,3 +3,9 @@ tqdm
 pandas
 numpy
 joblib
+gitpython
+ipython
+wandb
+scikit-learn
+gitpython
+ipython
