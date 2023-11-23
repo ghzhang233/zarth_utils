@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zarth_utils"
+description = "Package used for my personal development on ML projects."
+version = "1.0"
+dynamic = ["readme", "dependencies"]
+requires-python = ">=3.7"
+
+[tool.setuptools.packages.find]
+include = ["zarth_utils"]
+
+[tool.setuptools.dynamic]
+readme = { file = "README.md" }
+dependencies = { file = "requirements.txt" }
