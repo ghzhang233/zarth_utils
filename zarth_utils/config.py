@@ -27,13 +27,11 @@ def smart_load(path_file):
 
 
 class NestedDict:
-    """
-    This class could be used as either traditional dict or nested dict.
-    Example:
-        dict["a"]["b"]["c"] == dict["a.b.c"]
-    """
-
     def __init__(self, nested_dict=None):
+        """
+        This class could be used as either traditional dict or nested dict.
+        Example: dict["a"]["b"]["c"] == dict["a.b.c"]
+        """
         self._nested_dict = dict()
         if nested_dict is not None:
             self._nested_dict = nested_dict

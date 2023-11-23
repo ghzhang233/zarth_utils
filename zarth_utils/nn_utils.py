@@ -48,7 +48,8 @@ def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=True):
 
 
 def to_categorical(y, num_classes=None, dtype='float32'):
-    """Converts a class vector (integers) to binary class matrix.
+    """
+    Converts a class vector (integers) to binary class matrix.
     E.g. for use with `categorical_crossentropy`.
     Args:
         y: Array-like with class values to be converted into a matrix
@@ -214,7 +215,7 @@ def get_all_paths(path_exp, phase=None, add_time_stamp=True):
     :param phase: what you are doing right now, e.g., "train" or "eval", or you could leave it blank and a random name
     would be assigned
     :param add_time_stamp: whether add a time stamp under phase (if provided)
-    :return:
+    :return: a dict containing all paths
     """
     makedir_if_not_exist(path_exp)
     if phase is None:
