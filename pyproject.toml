@@ -9,6 +9,9 @@ version = "1.0"
 dynamic = ["readme", "dependencies"]
 requires-python = ">=3.7"
 
+[project.optional-dependencies]
+all = ["wandb", "nltk", "torch", "tensorflow", "scikit-learn"]
+
 [tool.setuptools.packages.find]
 include = ["zarth_utils"]
 
