@@ -13,6 +13,7 @@ Welcome to zarth_utils's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   config
    drawer
    general_utils
    jupyter_utils
