@@ -26,37 +26,50 @@ def smart_load(path_file):
         return json.load(open(path_file, "r", encoding="utf-8"))
 
 
-class NestedDict:
-    def __init__(self, nested_dict=None):
+class NestedDict(dict):
+    def __init__(self, *args, **kwargs):
         """
-        This class could be used as either traditional dict or nested dict.
-        Example: dict["a"]["b"]["c"] == dict["a.b.c"]
+        Every element could be visited by either attribute or dict manner.
+
+        Examples:
+            >>> a = NestedDict()
+            >>> a["b"]["c"] = 1
+            >>> a.b.c
+            1
+            >>> a.b.d = 2
+            >>> a["b"]["d"]
+            2
         """
-        self._nested_dict = dict()
-        if nested_dict is not None:
-            self._nested_dict = nested_dict
+        super(NestedDict, self).__init__(*args, **kwargs)
+        for k in dict.keys(self):
+            if type(k) is dict:
+                dict.__setitem__(self, k, NestedDict(k))
+
+    def __getattr__(self, item):
+        return self[item]
+
+    def __setattr__(self, key, value):
+        self[key] = value
 
     def __getitem__(self, key):
-        ret = self._nested_dict
+        ret = self
         for k in key.split("."):
-            ret = ret[k]
-        if type(ret) is dict:
-            ret = NestedDict(ret)
+            ret = dict.__getitem__(ret, k)
         return ret
 
     def __setitem__(self, key, value):
         key_list = key.split(".")
-        cur_dict = self._nested_dict
+        cur = self
         for i in range(len(key_list)):
             key = key_list[i]
             if i == len(key_list) - 1:
-                cur_dict[key] = value
+                dict.__setitem__(cur, key, value)
             else:
-                if key in cur_dict.keys():
-                    assert type(cur_dict[key]) is dict
+                if key in dict.keys(cur):
+                    assert type(dict.__getitem__(cur, key)) is NestedDict
                 else:
-                    cur_dict[key] = dict()
-                cur_dict = cur_dict[key]
+                    dict.__setitem__(cur, key, NestedDict())
+                cur = dict.__getitem__(cur, key)
 
     def update(self, new_dict, prefix=None):
         for k in new_dict:
@@ -69,10 +82,10 @@ class NestedDict:
 
     def keys(self, cur=None, prefix=None):
         if cur is None:
-            cur = self._nested_dict
+            cur = self
 
         ret = []
-        for k in cur.keys():
+        for k in dict.keys(cur):
             v = cur[k]
             new_prefix = ".".join([prefix, k]) if prefix is not None else k
             if type(v) is dict or type(v) is NestedDict:
@@ -136,6 +149,10 @@ class Config(NestedDict):
         :type default_config_dict: dict
         :param default_config_file: the default config file path
         :type default_config_file: str
+        :param use_argparse: whether use argparse to parse the config
+        :type use_argparse: bool
+        :param use_wandb: whether init wandb with parent directory as project name and exp_name as run name
+        :type use_wandb: bool
         """
         super(Config, self).__init__()
 
@@ -180,19 +197,6 @@ class Config(NestedDict):
 
             self.update(updated_parameters)
 
-        for k in self._nested_dict.keys():
-            assert k != "_nested_dict"
-            assert k != "keys"
-            assert k != "__getitem__"
-            assert k != "__setitem__"
-            assert k != "update"
-            assert k != "to_dict"
-            assert k != "show"
-            assert k != "dump"
-            assert k != "keys"
-            if "." not in k:
-                setattr(self, k, self[k])
-
         if use_wandb:
             wandb.login()
             wandb.init(
@@ -203,21 +207,40 @@ class Config(NestedDict):
 
 
 def get_parser():
+    """
+    Get a simple parser for argparse, which already contains the config_file argument.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", type=str, default=None)
     return parser
 
 
 def parser2config(parser):
+    """
+    Parse the arguments from parser into a config.
+    """
     return args2config(parser.parse_args())
 
 
 def args2config(args):
+    """
+    Parse the arguments from args into a config.
+    """
     args_dict = vars(args)
     return Config(default_config_dict=args_dict, use_argparse=False)
 
 
 def is_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
+    """
+    Judge whether two configs are the same.
+    Args:
+        config_a: the first config
+        config_b: the second config
+        ignored_keys: thes keys that will be ignored when comparing
+
+    Returns: True if the two configs are the same, False otherwise.
+
+    """
     config_a, config_b = config_a.to_dict(), config_b.to_dict()
 
     # make sure config A is always equal or longer than config B
