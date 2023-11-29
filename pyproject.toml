@@ -11,6 +11,7 @@ requires-python = ">=3.7"
 
 [project.optional-dependencies]
 all = ["nltk", "torch", "tensorflow", "jupyterlab"]
+hf = ["transformers", "accelerate", "trl", "datasets", "diffusers", "tokenizers", "huggingface_hub"]
 
 [tool.setuptools.packages.find]
 include = ["zarth_utils"]
