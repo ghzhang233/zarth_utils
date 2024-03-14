@@ -158,7 +158,6 @@ class Drawer:
         """
         if fname is None:
             fname = get_random_time_stamp()
-        fname = "%s.jpeg" % fname if not fname.endswith(".config") else fname
         self.figure.savefig(os.path.join(dir_figures, fname), bbox_inches='tight')
 
     def clear(self):
