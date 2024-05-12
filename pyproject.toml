@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "zarth_utils"
 description = "Package used for my personal development on ML projects."
-version = "1.0"
+version = "1.1"
 dynamic = ["readme", "dependencies"]
 requires-python = ">=3.7"
 
