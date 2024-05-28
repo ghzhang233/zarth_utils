@@ -12,6 +12,8 @@ try:
     import wandb
 except ModuleNotFoundError as err:
     logging.warning("WandB not installed!")
+except TypeError as err:
+    logging.warning("WandB not properly installed!")
 
 dir_configs = os.path.join(os.getcwd(), "configs")
 
@@ -230,7 +232,7 @@ def args2config(args):
     return Config(default_config_dict=args_dict, use_argparse=False)
 
 
-def is_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
+def are_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
     """
     Judge whether two configs are the same.
     Args:

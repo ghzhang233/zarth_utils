@@ -1,5 +1,8 @@
-import json
 import os
+import sys
+import json
+import logging
+import platform
 import shutil
 import stat
 from json import JSONDecodeError
@@ -11,46 +14,59 @@ import pandas as pd
 from tqdm import tqdm
 
 from .config import Config
-from .general_utils import get_random_time_stamp
+from .general_utils import get_random_time_stamp, get_datetime
 from .logger import logging_info
-import logging
 
 try:
     import wandb
 except ModuleNotFoundError as err:
     logging.warning("WandB not installed!")
+except TypeError as err:
+    logging.warning("WandB not properly installed!")
 
 
-class ResultRecorder:
-    def __init__(self, path_record, initial_record=None, use_git=True, use_wandb=False):
+class Recorder:
+    def __init__(self, path_record, config=None, use_git=True, use_wandb=False):
         """
         Initialize the result recorder. The results will be saved in a temporary file defined by path_record.temp.
         To end recording and transfer the temporary files, self.end_recording() must be called.
         :param path_record: the saving path of the recorded results.
         :type path_record: str
-        :param initial_record: a record to be initialize with, usually the config in practice
+        :param config: a record to be initialize with, usually the config in practice
         """
         self.__ending = False
         self.__record = dict()
         self.use_wandb = use_wandb
 
-        self.__path_temp_record = "%s.result.temp" % path_record if not path_record.endswith(".result") \
-            else path_record + ".temp"
-        self.__path_record = "%s.result" % path_record if not path_record.endswith(".result") \
-            else path_record
+        self.path_temp_record = "%s.result.temp" % path_record
+        self.path_record = "%s.result" % path_record
 
-        if os.path.exists(self.__path_temp_record):
-            shutil.move(self.__path_temp_record, self.__path_temp_record + ".%s" % get_random_time_stamp())
-        if os.path.exists(self.__path_record):
-            shutil.move(self.__path_record, self.__path_record + ".%s" % get_random_time_stamp())
+        if os.path.exists(self.path_temp_record):
+            shutil.move(self.path_temp_record, self.path_temp_record + ".mv.%s" % get_random_time_stamp())
+        if os.path.exists(self.path_record):
+            shutil.move(self.path_record, self.path_record + ".mv.%s" % get_random_time_stamp())
 
-        if initial_record is not None:
-            self.update(initial_record)
+        if config is not None:
+            for k in config.keys():
+                self.__setitem__("config." + k, config[k])
+
+        self.__setitem__("meta_data.operating_system", platform.system())
+        self.__setitem__("meta_data.os_release", platform.release())
+        self.__setitem__("meta_data.platform", platform.platform())
+        self.__setitem__("meta_data.processor", platform.processor())
+        self.__setitem__("meta_data.args", " ".join(sys.argv))
+        self.__setitem__("meta_data.run_dir", os.getcwd())
+        self.__setitem__("meta_data.start_time", get_datetime())
 
         if use_git:
             repo = git.Repo(path=os.getcwd())
             assert not repo.is_dirty()
-            self.__setitem__("git_commit", repo.head.object.hexsha)
+            self.__setitem__("meta_data." + "git_commit", repo.head.object.hexsha)
+
+        self.path_requirement = "%s.env" % path_record
+        if os.path.exists(self.path_requirement):
+            shutil.move(self.path_requirement, self.path_requirement + ".mv.%s" % get_random_time_stamp())
+        os.system("conda env export --file %s" % self.path_requirement)
 
     def write_record(self, line):
         """
@@ -58,7 +74,7 @@ class ResultRecorder:
         :param line: the content to be write
         :type line: str
         """
-        with open(self.__path_temp_record, "a", encoding="utf-8") as fin:
+        with open(self.path_temp_record, "a", encoding="utf-8") as fin:
             fin.write(line + "\n")
 
     def keys(self):
@@ -118,10 +134,13 @@ class ResultRecorder:
         :return:
         :rtype:
         """
+        assert "meta_data.end_time" not in self.keys()
+        self.__setitem__("meta_data.end_time", get_datetime())
         self.__ending = True
         self.write_record("\n$END$\n")
-        shutil.move(self.__path_temp_record, self.__path_record)
-        os.chmod(self.__path_record, stat.S_IREAD)
+
+        shutil.move(self.path_temp_record, self.path_record)
+        os.chmod(self.path_record, stat.S_IREAD)
 
     def dump(self, path_dump):
         """
@@ -132,7 +151,7 @@ class ResultRecorder:
         assert self.__ending
         path_dump = "%s.result" % path_dump if not path_dump.endswith(".result") else path_dump
         assert not os.path.exists(path_dump)
-        shutil.copy(self.__path_record, path_dump)
+        shutil.copy(self.path_record, path_dump)
 
     def to_dict(self):
         """
