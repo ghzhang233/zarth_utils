@@ -12,6 +12,8 @@ try:
     import wandb
 except ModuleNotFoundError as err:
     logging.warning("WandB not installed!")
+except TypeError as err:
+    logging.warning("WandB not properly installed!")
 
 dir_configs = os.path.join(os.getcwd(), "configs")
 
@@ -103,7 +105,7 @@ class NestedDict(dict):
         """
         Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
         """
-        logging_info("\n%s" % json.dumps(self._nested_dict, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging_info("\n%s" % json.dumps(self, sort_keys=True, indent=4, separators=(',', ': ')))
 
     def to_dict(self):
         """
@@ -111,7 +113,7 @@ class NestedDict(dict):
         :return: config dict
         :rtype: dict
         """
-        return self._nested_dict
+        return self
 
     def dump(self, path_dump=None):
         """
@@ -125,7 +127,7 @@ class NestedDict(dict):
         path_dump = "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
         assert not os.path.exists(path_dump)
         with open(path_dump, "w", encoding="utf-8") as fout:
-            json.dump(self._nested_dict, fout)
+            json.dump(self, fout)
 
 
 class Config(NestedDict):
@@ -230,7 +232,7 @@ def args2config(args):
     return Config(default_config_dict=args_dict, use_argparse=False)
 
 
-def is_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
+def are_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
     """
     Judge whether two configs are the same.
     Args:
