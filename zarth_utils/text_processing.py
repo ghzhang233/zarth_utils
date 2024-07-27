@@ -6,8 +6,16 @@ from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 
 
-def process_sentence(s, lower=True, remove_number=True, remove_punctuation=True, tokenize=False, remove_stop=False,
-                     stem=False, lemmatize=False):
+def process_sentence(
+    s,
+    lower=True,
+    remove_number=True,
+    remove_punctuation=True,
+    tokenize=False,
+    remove_stop=False,
+    stem=False,
+    lemmatize=False,
+):
     """
     Process a sentence.
     :param s: the sentence

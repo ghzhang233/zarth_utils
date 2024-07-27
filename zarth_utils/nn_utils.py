@@ -19,7 +19,14 @@ except ModuleNotFoundError as err:
     logging.warning("Pytorch not installed!")
 
 try:
-    from sklearn.metrics import roc_auc_score, confusion_matrix, accuracy_score, log_loss, f1_score, precision_score
+    from sklearn.metrics import (
+        roc_auc_score,
+        confusion_matrix,
+        accuracy_score,
+        log_loss,
+        f1_score,
+        precision_score,
+    )
 except ModuleNotFoundError as err:
     logging.warning("Scikit-learn not installed!")
 
@@ -47,7 +54,7 @@ def set_random_seed(seed, deterministic=False, no_torch=False, no_tf=True):
         tf.random.set_seed(seed)
 
 
-def to_categorical(y, num_classes=None, dtype='float32'):
+def to_categorical(y, num_classes=None, dtype="float32"):
     """
     Converts a class vector (integers) to binary class matrix.
     E.g. for use with `categorical_crossentropy`.
@@ -61,7 +68,7 @@ def to_categorical(y, num_classes=None, dtype='float32'):
         A binary matrix representation of the input. The class axis is placed
         last.
     """
-    y = np.array(y, dtype='int')
+    y = np.array(y, dtype="int")
     input_shape = y.shape
     if input_shape and input_shape[-1] == 1 and len(input_shape) > 1:
         input_shape = tuple(input_shape[:-1])
@@ -88,8 +95,12 @@ def get_classical_metrics(y_true, y_pred, y_prob, sample_weight=None):
     :param sample_weight: sample weights
     """
     assert len(np.unique(y_true)) >= 2  # there should be at least two classes
-    assert len(y_pred.shape) == 1 or (len(y_pred.shape) == 2 and y_pred.shape[1] == 1)  # y_pred must be [n, ] or [n, 1]
-    assert len(y_true.shape) == 1 or (len(y_true.shape) == 2 and y_true.shape[1] == 1)  # y_true must be [n, ] or [n, 1]
+    assert len(y_pred.shape) == 1 or (
+        len(y_pred.shape) == 2 and y_pred.shape[1] == 1
+    )  # y_pred must be [n, ] or [n, 1]
+    assert len(y_true.shape) == 1 or (
+        len(y_true.shape) == 2 and y_true.shape[1] == 1
+    )  # y_true must be [n, ] or [n, 1]
     y_true = y_true.reshape([-1])
     y_pred = y_pred.reshape([-1])
     num_classes = len(np.unique(y_true))
@@ -98,21 +109,32 @@ def get_classical_metrics(y_true, y_pred, y_prob, sample_weight=None):
         y_prob = y_prob.reshape([-1])
 
     ret = defaultdict()
-    ret["ACC"] = accuracy_score(y_true=y_true, y_pred=y_pred, sample_weight=sample_weight)
+    ret["ACC"] = accuracy_score(
+        y_true=y_true, y_pred=y_pred, sample_weight=sample_weight
+    )
 
     if num_classes == 2:
-        ret["TNR"], ret["FPR"], ret["FNR"], ret["TPR"] = confusion_matrix(y_true, y_pred, normalize="true",
-                                                                          sample_weight=sample_weight).ravel()
+        ret["TNR"], ret["FPR"], ret["FNR"], ret["TPR"] = confusion_matrix(
+            y_true, y_pred, normalize="true", sample_weight=sample_weight
+        ).ravel()
         ret["Precision"] = precision_score(y_true, y_pred, sample_weight=sample_weight)
         ret["F1"] = f1_score(y_true=y_true, y_pred=y_pred, sample_weight=sample_weight)
         ret["PO1"] = (y_pred == 1).sum() / len(y_pred)
 
     if len(y_prob.shape) == 2:
-        ret["Loss"] = log_loss(y_true=to_categorical(y_true), y_pred=y_prob, sample_weight=sample_weight)
-        ret["AUC"] = roc_auc_score(y_true=to_categorical(y_true), y_score=y_prob, sample_weight=sample_weight)
+        ret["Loss"] = log_loss(
+            y_true=to_categorical(y_true), y_pred=y_prob, sample_weight=sample_weight
+        )
+        ret["AUC"] = roc_auc_score(
+            y_true=to_categorical(y_true), y_score=y_prob, sample_weight=sample_weight
+        )
     else:
-        ret["Loss"] = log_loss(y_true=y_true, y_pred=y_prob, sample_weight=sample_weight)
-        ret["AUC"] = roc_auc_score(y_true=y_true, y_score=y_prob, sample_weight=sample_weight)
+        ret["Loss"] = log_loss(
+            y_true=y_true, y_pred=y_prob, sample_weight=sample_weight
+        )
+        ret["AUC"] = roc_auc_score(
+            y_true=y_true, y_score=y_prob, sample_weight=sample_weight
+        )
 
     return ret
 
@@ -188,8 +210,10 @@ class EarlyStoppingManager:
         else:
             self.no_improvement += 1
             if self.no_improvement == self.max_no_improvement:
-                logging_info("Early Stop at Epoch %d with Score %.3lf." % (
-                    self.best_epoch, self.get_best_score() * self._sign()))
+                logging_info(
+                    "Early Stop at Epoch %d with Score %.3lf."
+                    % (self.best_epoch, self.get_best_score() * self._sign())
+                )
                 return True
 
     def state_dict(self):
@@ -198,7 +222,7 @@ class EarlyStoppingManager:
             "max_no_improvement": self.max_no_improvement,
             "best_score": self.best_score,
             "best_epoch": self.best_epoch,
-            "no_improvement": self.no_improvement
+            "no_improvement": self.no_improvement,
         }
 
     def load_state_dict(self, state):
@@ -228,7 +252,7 @@ def get_all_paths(path_exp, phase=None, add_time_stamp=True):
         "path_config": os.path.join(path_exp, phase),
         "path_log": os.path.join(path_exp, phase),
         "path_best_ckpt": os.path.join(path_exp, "best_ckpt"),
-        "path_ckpt": os.path.join(path_exp, "ckpt_%d")
+        "path_ckpt": os.path.join(path_exp, "ckpt_%d"),
     }
 
 
@@ -282,6 +306,6 @@ def random_split(n, ratio=(0.8, 0.1, 0.1)):
     s = 0
     for r in ratio:
         e = s + int(r * n)
-        ret.append(order[s: e])
+        ret.append(order[s:e])
         s = e
     return ret

@@ -49,9 +49,14 @@ class Recorder:
         self.path_record = "%s.result" % path_record
 
         if os.path.exists(self.path_temp_record):
-            shutil.move(self.path_temp_record, self.path_temp_record + ".mv.%s" % get_random_time_stamp())
+            shutil.move(
+                self.path_temp_record,
+                self.path_temp_record + ".mv.%s" % get_random_time_stamp(),
+            )
         if os.path.exists(self.path_record):
-            shutil.move(self.path_record, self.path_record + ".mv.%s" % get_random_time_stamp())
+            shutil.move(
+                self.path_record, self.path_record + ".mv.%s" % get_random_time_stamp()
+            )
 
         if config is not None:
             for k in config.keys():
@@ -72,8 +77,13 @@ class Recorder:
 
         self.path_requirement = "%s.env" % path_record
         if os.path.exists(self.path_requirement):
-            shutil.move(self.path_requirement, self.path_requirement + ".mv.%s" % get_random_time_stamp())
-        dir_conda = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(sys.executable))))
+            shutil.move(
+                self.path_requirement,
+                self.path_requirement + ".mv.%s" % get_random_time_stamp(),
+            )
+        dir_conda = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(sys.executable)))
+        )
         path_conda = os.path.join(dir_conda, "condabin", "conda")
         os.system("%s env export --file %s" % (path_conda, self.path_requirement))
 
@@ -158,7 +168,9 @@ class Recorder:
         :type path_dump: str
         """
         assert self.__ending
-        path_dump = "%s.result" % path_dump if not path_dump.endswith(".result") else path_dump
+        path_dump = (
+            "%s.result" % path_dump if not path_dump.endswith(".result") else path_dump
+        )
         assert not os.path.exists(path_dump)
         shutil.copy(self.path_record, path_dump)
 
@@ -174,7 +186,12 @@ class Recorder:
         """
         To show the reuslts in logger.
         """
-        logging_info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging_info(
+            "\n%s"
+            % json.dumps(
+                self.__record, sort_keys=True, indent=4, separators=(",", ": ")
+            )
+        )
 
 
 class RecorderCallback(transformers.TrainerCallback):
@@ -211,7 +228,9 @@ def load_result(path_record, return_type="dict"):
     return ret, False
 
 
-def collect_results(dir_results, collect_condition_func=None, pickled_filename=".pickled_results.jbl"):
+def collect_results(
+    dir_results, collect_condition_func=None, pickled_filename=".pickled_results.jbl"
+):
     """
     Collect all the ended results in dir_results.
     :param dir_results: the directory of the reuslts to be collected
@@ -237,7 +256,9 @@ def collect_results(dir_results, collect_condition_func=None, pickled_filename="
             file_path = os.path.join(path, file_name)
             if not os.path.isdir(file_path) and file_path.endswith(".result"):
                 if file_path not in already_collect_list:
-                    if collect_condition_func is None or collect_condition_func(file_path):
+                    if collect_condition_func is None or collect_condition_func(
+                        file_path
+                    ):
                         to_be_read.append(file_path)
     print("Got %d to be read." % len(to_be_read))
 
@@ -281,7 +302,7 @@ def collect_dead_results(dir_results):
 
 
 def get_max_epoch(data):
-    ret = -0x3f3f3f3f
+    ret = -0x3F3F3F3F
     for c in data.columns:
         if c.startswith("epoch_"):
             try:
@@ -352,7 +373,11 @@ def get_columns_group_by(data, config_path, exclude_key=("exp_name", "random_see
     ret = []
     config = Config(default_config_file=config_path)
     for k in config.keys():
-        if k not in exclude_key and len(set([(tuple(i) if type(i) == list else i) for i in data[k].values])) != 1:
+        if (
+            k not in exclude_key
+            and len(set([(tuple(i) if type(i) == list else i) for i in data[k].values]))
+            != 1
+        ):
             ret.append(k)
     return ret
 
@@ -362,18 +387,20 @@ def remove_duplicate(data, keys=("phase", "exp_name")):
     return data
 
 
-def merge_phase(data, data_to_merge, merge_on_keys=("exp_name",), suffixes=("", "_eval")):
+def merge_phase(
+    data, data_to_merge, merge_on_keys=("exp_name",), suffixes=("", "_eval")
+):
     return data.merge(data_to_merge, how="inner", on=merge_on_keys, suffixes=suffixes)
 
 
 def simple_read_results_pipeline(
-        dir_results,
-        collect_condition_func=None,
-        pickled_filename=".pickled_results.jbl",
-        column_filtering_func=lambda c: False,
-        columns4show=None,
-        columns4group=None,
-        path_default_config=None,
+    dir_results,
+    collect_condition_func=None,
+    pickled_filename=".pickled_results.jbl",
+    column_filtering_func=lambda c: False,
+    columns4show=None,
+    columns4group=None,
+    path_default_config=None,
 ):
     all_data = collect_results(dir_results, collect_condition_func, pickled_filename)
     columns = [c for c in all_data.columns if not column_filtering_func(c)]
@@ -385,22 +412,39 @@ def simple_read_results_pipeline(
     if columns4group is None and path_default_config is not None:
         filtered_data = fill_config_na(filtered_data, path_default_config)
         columns_diff = get_informative_columns(filtered_data, path_default_config)
-        columns_diff = [c for c in columns_diff if "exp_name" not in c and "random_seed" not in c]
+        columns_diff = [
+            c for c in columns_diff if "exp_name" not in c and "random_seed" not in c
+        ]
         columns4group = columns_diff
 
     assert columns4group is not None, "Group Keys Unprovided!"
 
     grouped_data_mean = pd.DataFrame(
-        filtered_data[columns4group + columns4show].groupby(by=columns4group).mean()).reset_index()
+        filtered_data[columns4group + columns4show].groupby(by=columns4group).mean()
+    ).reset_index()
     grouped_data_std = pd.DataFrame(
-        filtered_data[columns4group + columns4show].groupby(by=columns4group).std()).reset_index()
+        filtered_data[columns4group + columns4show].groupby(by=columns4group).std()
+    ).reset_index()
     grouped_data_count = pd.DataFrame(
-        filtered_data[columns4group + columns4show].groupby(by=columns4group).count()).reset_index()
+        filtered_data[columns4group + columns4show].groupby(by=columns4group).count()
+    ).reset_index()
 
-    grouped_data = merge_phase(grouped_data_mean, grouped_data_std, merge_on_keys=columns4group, suffixes=("", "_std"))
-    grouped_data = merge_phase(grouped_data, grouped_data_count, merge_on_keys=columns4group, suffixes=("", "_count"))
+    grouped_data = merge_phase(
+        grouped_data_mean,
+        grouped_data_std,
+        merge_on_keys=columns4group,
+        suffixes=("", "_std"),
+    )
+    grouped_data = merge_phase(
+        grouped_data,
+        grouped_data_count,
+        merge_on_keys=columns4group,
+        suffixes=("", "_count"),
+    )
 
-    columns4show_sorted = list(np.concatenate([[c, c + "_std", c + "_count"] for c in columns4show], axis=0))
+    columns4show_sorted = list(
+        np.concatenate([[c, c + "_std", c + "_count"] for c in columns4show], axis=0)
+    )
 
     grouped_data = grouped_data[columns4group + columns4show_sorted]
     grouped_data = grouped_data.sort_values(by=columns4show)

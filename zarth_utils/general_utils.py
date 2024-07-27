@@ -4,7 +4,7 @@ import datetime
 
 
 def get_datetime():
-    return datetime.datetime.now().strftime('%Y.%m.%d-%H.%M.%S')
+    return datetime.datetime.now().strftime("%Y.%m.%d-%H.%M.%S")
 
 
 def get_random_time_stamp():

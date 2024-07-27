@@ -14,14 +14,18 @@ def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=Fa
     """
     ret_logger = logging.getLogger()
     ret_logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s: %(message)s', datefmt='%Y-%m-%d-%H:%M:%S')
+    formatter = logging.Formatter(
+        "%(asctime)s-%(name)s-%(levelname)s: %(message)s", datefmt="%Y-%m-%d-%H:%M:%S"
+    )
 
     if force_add_handler:
         ret_logger.handlers = []
 
     if not ret_logger.handlers:
         if path_log is not None:
-            path_log = "%s.log" % path_log if not path_log.endswith(".log") else path_log
+            path_log = (
+                "%s.log" % path_log if not path_log.endswith(".log") else path_log
+            )
             fh = logging.FileHandler(path_log)
             fh.setLevel(logging.DEBUG)
             fh.setFormatter(formatter)

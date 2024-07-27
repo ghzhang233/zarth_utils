@@ -10,7 +10,14 @@ makedir_if_not_exist(dir_figures)
 
 
 class Drawer:
-    def __init__(self, num_row=1, num_col=1, unit_length=10, unit_row_length=None, unit_col_length=None):
+    def __init__(
+        self,
+        num_row=1,
+        num_col=1,
+        unit_length=10,
+        unit_row_length=None,
+        unit_col_length=None,
+    ):
         """
         Init the drawer with the (width=num_col*unit_length, height=num_row*unit_length).
         :param num_row: the number of rows
@@ -26,10 +33,22 @@ class Drawer:
         self.num_col = num_col
         unit_row_length = unit_length if unit_row_length is None else unit_row_length
         unit_col_length = unit_length if unit_col_length is None else unit_col_length
-        self.figure = figure(figsize=(num_col * unit_row_length, num_row * unit_col_length))
+        self.figure = figure(
+            figsize=(num_col * unit_row_length, num_row * unit_col_length)
+        )
 
-    def add_one_empty_axes(self, index=1, nrows=None, ncols=None,
-                           title="", xlabel="", ylabel="", fontsize=15, xlim=None, ylim=None):
+    def add_one_empty_axes(
+        self,
+        index=1,
+        nrows=None,
+        ncols=None,
+        title="",
+        xlabel="",
+        ylabel="",
+        fontsize=15,
+        xlim=None,
+        ylim=None,
+    ):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param index: The subplot will take the index position on a grid with nrows rows and ncols columns.
@@ -67,9 +86,27 @@ class Drawer:
 
         return ax
 
-    def draw_one_axes(self, x, y, labels=None, *, index=1, nrows=None, ncols=None,
-                      title="", xlabel="", ylabel="", use_marker=False, linewidth=6,
-                      fontsize=15, xlim=None, ylim=None, smooth=0, mode="plot", **kwargs):
+    def draw_one_axes(
+        self,
+        x,
+        y,
+        labels=None,
+        *,
+        index=1,
+        nrows=None,
+        ncols=None,
+        title="",
+        xlabel="",
+        ylabel="",
+        use_marker=False,
+        linewidth=6,
+        fontsize=15,
+        xlim=None,
+        ylim=None,
+        smooth=0,
+        mode="plot",
+        **kwargs
+    ):
         """
         Draw one axes, which can be understood as a sub-figure.
         :param x: the data for x axis, list
@@ -98,8 +135,9 @@ class Drawer:
         :return:
         :rtype:
         """
-        ax = self.add_one_empty_axes(index, nrows, ncols, title, xlabel, ylabel,
-                                     fontsize, xlim, ylim)
+        ax = self.add_one_empty_axes(
+            index, nrows, ncols, title, xlabel, ylabel, fontsize, xlim, ylim
+        )
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
@@ -115,12 +153,14 @@ class Drawer:
                 for j, yij in enumerate(yi):
                     _r = min(j + smooth, len(yi) - 1)
                     _l = max(j - smooth, 0)
-                    yij = sum(yi[_l: _r]) / (_r - _l)
+                    yij = sum(yi[_l:_r]) / (_r - _l)
                     yi_smoothed.append(yij)
                 yi = yi_smoothed
 
             len_no_nan = 0
-            while len_no_nan < len(yi) and not (np.isnan(yi[len_no_nan]) or np.isinf(yi[len_no_nan])):
+            while len_no_nan < len(yi) and not (
+                np.isnan(yi[len_no_nan]) or np.isinf(yi[len_no_nan])
+            ):
                 len_no_nan += 1
             if len_no_nan == 0:
                 continue
@@ -135,7 +175,9 @@ class Drawer:
             if mode == "plot":
                 ax.plot(xi[:len_no_nan], yi[:len_no_nan], fmt, **kwargs)
             elif mode == "scatter":
-                ax.scatter(xi[:len_no_nan], yi[:len_no_nan], c=fmt[0], s=linewidth, **kwargs)
+                ax.scatter(
+                    xi[:len_no_nan], yi[:len_no_nan], c=fmt[0], s=linewidth, **kwargs
+                )
             else:
                 raise NotImplementedError
 
@@ -158,7 +200,7 @@ class Drawer:
         """
         if fname is None:
             fname = get_random_time_stamp()
-        self.figure.savefig(os.path.join(dir_figures, fname), bbox_inches='tight')
+        self.figure.savefig(os.path.join(dir_figures, fname), bbox_inches="tight")
 
     def clear(self):
         """
@@ -174,12 +216,35 @@ class Drawer:
         :type use_marker: bool
         """
         p_color, p_style, p_marker = 0, 0, 0
-        colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
-        styles = ['-', '--', '-.', ':']
+        colors = ["r", "g", "b", "c", "m", "y", "k"]
+        styles = ["-", "--", "-.", ":"]
         markers = [""]
         if use_marker:
-            markers = ['o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p', 'P', '*', 'h', 'H', '+',
-                       'x', 'X', 'D', 'd', '|', '_', ]
+            markers = [
+                "o",
+                "v",
+                "^",
+                "<",
+                ">",
+                "1",
+                "2",
+                "3",
+                "4",
+                "8",
+                "s",
+                "p",
+                "P",
+                "*",
+                "h",
+                "H",
+                "+",
+                "x",
+                "X",
+                "D",
+                "d",
+                "|",
+                "_",
+            ]
 
         while True:
             yield colors[p_color] + styles[p_style] + markers[p_marker]
