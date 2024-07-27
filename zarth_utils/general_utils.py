@@ -22,5 +22,4 @@ def makedir_if_not_exist(name):
     :param name: dir name
     :type name: str
     """
-    if not os.path.exists(name):
-        os.makedirs(name)
+    os.makedirs(name, exist_ok=True)

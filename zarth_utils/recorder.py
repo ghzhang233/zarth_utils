@@ -24,6 +24,13 @@ except ModuleNotFoundError as err:
 except TypeError as err:
     logging.warning("WandB not properly installed!")
 
+try:
+    import transformers
+except ModuleNotFoundError as err:
+    logging.warning("Transformers not installed!")
+except TypeError as err:
+    logging.warning("Transformers not properly installed!")
+
 
 class Recorder:
     def __init__(self, path_record, config=None, use_git=True, use_wandb=False):
@@ -66,7 +73,9 @@ class Recorder:
         self.path_requirement = "%s.env" % path_record
         if os.path.exists(self.path_requirement):
             shutil.move(self.path_requirement, self.path_requirement + ".mv.%s" % get_random_time_stamp())
-        os.system("conda env export --file %s" % self.path_requirement)
+        dir_conda = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(sys.executable))))
+        path_conda = os.path.join(dir_conda, "condabin", "conda")
+        os.system("%s env export --file %s" % (path_conda, self.path_requirement))
 
     def write_record(self, line):
         """
@@ -166,6 +175,17 @@ class Recorder:
         To show the reuslts in logger.
         """
         logging_info("\n%s" % json.dumps(self.__record, sort_keys=True, indent=4, separators=(',', ': ')))
+
+
+class RecorderCallback(transformers.TrainerCallback):
+    def __init__(self, recorder, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.recorder = recorder
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        for k, v in logs.items():
+            if isinstance(v, (int, float)):
+                self.recorder.add_with_logging(key=k, value=v, epoch=state.global_step)
 
 
 def load_result(path_record, return_type="dict"):
