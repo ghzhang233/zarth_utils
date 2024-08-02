@@ -24,13 +24,6 @@ except ModuleNotFoundError as err:
 except TypeError as err:
     logging.warning("WandB not properly installed!")
 
-try:
-    import transformers
-except ModuleNotFoundError as err:
-    logging.warning("Transformers not installed!")
-except TypeError as err:
-    logging.warning("Transformers not properly installed!")
-
 
 class Recorder:
     def __init__(self, path_record, config=None, use_git=True, use_wandb=False):
@@ -118,10 +111,10 @@ class Recorder:
         self.write_record(json.dumps({key: value}))
 
     def add(self, key, value, epoch=None):
-        if self.use_wandb:
-            wandb.log({key: value})
         if epoch is not None:
             key = "epoch_%d-%s" % (epoch, key)
+        if self.use_wandb:
+            wandb.log({key: value})
         self.__setitem__(key, value)
 
     def add_with_logging(self, key, value, msg=None, epoch=None):
@@ -192,17 +185,6 @@ class Recorder:
                 self.__record, sort_keys=True, indent=4, separators=(",", ": ")
             )
         )
-
-
-class RecorderCallback(transformers.TrainerCallback):
-    def __init__(self, recorder, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.recorder = recorder
-
-    def on_log(self, args, state, control, logs=None, **kwargs):
-        for k, v in logs.items():
-            if isinstance(v, (int, float)):
-                self.recorder.add_with_logging(key=k, value=v, epoch=state.global_step)
 
 
 def load_result(path_record, return_type="dict"):
