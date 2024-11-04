@@ -68,7 +68,7 @@ class Recorder:
             assert not repo.is_dirty()
             self.__setitem__("meta_data." + "git_commit", repo.head.object.hexsha)
 
-        self.path_requirement = "%s.env" % path_record
+        self.path_requirement = "%s.env.yml" % path_record
         if os.path.exists(self.path_requirement):
             shutil.move(
                 self.path_requirement,
