@@ -13,7 +13,7 @@ def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=Fa
     :type path_log: str
     """
     ret_logger = logging.getLogger()
-    ret_logger.setLevel(logging.DEBUG)
+    ret_logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
         "%(asctime)s-%(name)s-%(levelname)s: %(message)s", datefmt="%Y-%m-%d-%H:%M:%S"
     )
@@ -27,7 +27,7 @@ def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=Fa
                 "%s.log" % path_log if not path_log.endswith(".log") else path_log
             )
             fh = logging.FileHandler(path_log)
-            fh.setLevel(logging.DEBUG)
+            fh.setLevel(logging.INFO)
             fh.setFormatter(formatter)
             ret_logger.addHandler(fh)
 
@@ -41,9 +41,9 @@ def get_logger(path_log="%s.log" % get_random_time_stamp(), force_add_handler=Fa
 
 def logging_info(*args):
     if logging.root.level > logging.getLevelName("INFO"):
-        logging.root.setLevel(logging.DEBUG)
+        logging.root.setLevel(logging.INFO)
         for handler in logging.root.handlers:
-            handler.setLevel(logging.DEBUG)
+            handler.setLevel(logging.INFO)
         logging.info(*args)
     else:
         logging.info(*args)

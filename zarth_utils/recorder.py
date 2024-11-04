@@ -110,24 +110,26 @@ class Recorder:
         self.__record[key] = value
         self.write_record(json.dumps({key: value}))
 
-    def add(self, key, value, epoch=None):
+    def add(self, key, value, epoch=None, step=None):
+        if step is not None:
+            key = "step_%d-%s" % (step, key)
         if epoch is not None:
             key = "epoch_%d-%s" % (epoch, key)
         if self.use_wandb:
             wandb.log({key: value})
         self.__setitem__(key, value)
+        return key, value
 
-    def add_with_logging(self, key, value, msg=None, epoch=None):
+    def add_with_logging(self, key, value, msg=None, epoch=None, step=None):
         """
         Add an item to results and also print with logging. The format of logging can be defined.
         :param key: the key
         :param value: the value to be added to the results
         :param msg: the message to the logger, format can be added. e.g. msg="Training set %s=%.4lf."
         :param epoch: current epoch
+        :param step: current step
         """
-        self.add(key, value, epoch)
-        if epoch is not None:
-            key = "epoch_%d-%s" % (epoch, key)
+        key, values = self.add(key, value, epoch, step)
         if msg is None:
             logging_info("%s: %s" % (key, str(value)))
         else:
