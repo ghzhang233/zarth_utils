@@ -286,6 +286,7 @@ def collect_dead_results(dir_results):
 
 
 def get_max_epoch(data):
+    data = data.dropna(axis=1, how="all")
     ret = -0x3F3F3F3F
     for c in data.columns:
         if c.startswith("epoch_"):
@@ -298,28 +299,32 @@ def get_max_epoch(data):
 
 
 def get_recorded_metrics(data):
-    return set([c.split("-")[1] for c in data.columns if c.startswith("epoch_0-")])
+    return set([c.split("-")[-1] for c in data.columns if c.startswith("epoch_0-")])
 
 
-def get_trajectory(data, metric, filters=None):
+def get_trajectory(data, metric, filters=None, max_epoch=None):
     data_filtered = data[filters] if filters is not None else data
     assert len(data_filtered) == 1, "%d Files Located" % len(data_filtered)
-    max_epoch = get_max_epoch(data)
+    data_filtered = data_filtered.dropna(axis=1)
+    max_epoch = get_max_epoch(data_filtered) if max_epoch is None else max_epoch
 
     x, y = [], []
-    for epoch in range(max_epoch + 1):
-        if "epoch_%d-%s" % (epoch, metric) in data_filtered.columns:
-            v = data_filtered["epoch_%d-%s" % (epoch, metric)].values[0]
+    for c in data_filtered.columns:
+        if c.startswith("epoch_") and c.endswith(metric):
+            epoch = int(c.split("-")[0].split("_")[1])
+            if epoch > max_epoch:
+                continue
+            v = data_filtered[c].values[0]
             if (type(v) in [str]) or (not np.isnan(v) and not np.isinf(v)):
                 x.append(epoch)
                 y.append(v)
             else:
                 break
-        elif epoch == 0:
-            continue
-        else:
-            break
 
+    assert len(x) == max_epoch, "%d != %d" % (len(x), max_epoch)
+    order = sorted(list(range(len(x))), key=lambda i: x[i])
+    x = [x[i] for i in order]
+    y = [y[i] for i in order]
     return x, y
 
 
