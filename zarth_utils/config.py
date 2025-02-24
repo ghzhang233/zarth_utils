@@ -24,7 +24,9 @@ def smart_load(path_file):
     elif path_file.endswith("yaml") or path_file.endswith("yml"):
         return yaml.safe_load(open(path_file, "r", encoding="utf-8"))
     else:
-        logging.warning("Un-identified file type. It will be processed as json by default.")
+        logging.warning(
+            "Un-identified file type. It will be processed as json by default."
+        )
         return json.load(open(path_file, "r", encoding="utf-8"))
 
 
@@ -49,6 +51,9 @@ class NestedDict(dict):
 
     def __getattr__(self, item):
         return self[item]
+
+    def __getstate__(self):
+        return self
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -105,7 +110,9 @@ class NestedDict(dict):
         """
         Show all the configs in logging. If get_logger is used before, then the outputs will also be in the log file.
         """
-        logging_info("\n%s" % json.dumps(self, sort_keys=True, indent=4, separators=(',', ': ')))
+        logging_info(
+            "\n%s" % json.dumps(self, sort_keys=True, indent=4, separators=(",", ": "))
+        )
 
     def to_dict(self):
         """
@@ -124,14 +131,22 @@ class NestedDict(dict):
         if path_dump is None:
             makedir_if_not_exist(dir_configs)
             path_dump = os.path.join(dir_configs, "%s.json" % get_random_time_stamp())
-        path_dump = "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
+        path_dump = (
+            "%s.json" % path_dump if not path_dump.endswith(".json") else path_dump
+        )
         assert not os.path.exists(path_dump)
         with open(path_dump, "w", encoding="utf-8") as fout:
             json.dump(self, fout)
 
 
 class Config(NestedDict):
-    def __init__(self, default_config_file=None, default_config_dict=None, use_argparse=True, use_wandb=False):
+    def __init__(
+        self,
+        default_config_file=None,
+        default_config_dict=None,
+        use_argparse=True,
+        use_wandb=False,
+    ):
         """
         Initialize the config. Note that either default_config_dict or default_config_file in json format must be
         provided! The keys will be transferred to argument names, and the type will be automatically detected. The
@@ -163,7 +178,9 @@ class Config(NestedDict):
             if os.path.exists(os.path.join(os.getcwd(), "default_config.json")):
                 default_config_file = os.path.join(os.getcwd(), "default_config.json")
             else:
-                logging.error("Either default_config_file or default_config_dict must be provided!")
+                logging.error(
+                    "Either default_config_file or default_config_dict must be provided!"
+                )
                 raise NotImplementedError
 
         if default_config_file is not None:
@@ -179,13 +196,26 @@ class Config(NestedDict):
             for name_param in self.keys():
                 value_param = self[name_param]
                 if type(value_param) is bool:
-                    parser.add_argument("--%s" % name_param, action="store_true", default=None)
-                    parser.add_argument("--no-%s" % name_param, dest="%s" % name_param,
-                                        action="store_false", default=None)
+                    parser.add_argument(
+                        "--%s" % name_param, action="store_true", default=None
+                    )
+                    parser.add_argument(
+                        "--no-%s" % name_param,
+                        dest="%s" % name_param,
+                        action="store_false",
+                        default=None,
+                    )
                 elif type(value_param) is list:
-                    parser.add_argument("--%s" % name_param, type=type(value_param[0]), nargs="+", default=None)
+                    parser.add_argument(
+                        "--%s" % name_param,
+                        type=type(value_param[0]),
+                        nargs="+",
+                        default=None,
+                    )
                 else:
-                    parser.add_argument("--%s" % name_param, type=type(value_param), default=None)
+                    parser.add_argument(
+                        "--%s" % name_param, type=type(value_param), default=None
+                    )
             args = parser.parse_args()
 
             updated_parameters = dict()
@@ -204,7 +234,7 @@ class Config(NestedDict):
             wandb.init(
                 project=os.path.split(os.getcwd())[-1],
                 name=self["exp_name"],
-                config=self.to_dict()
+                config=self.to_dict(),
             )
 
 
@@ -253,18 +283,28 @@ def are_configs_same(config_a, config_b, ignored_keys=("load_epoch",)):
 
     if len(config_a.keys() - config_b.keys()) > 1:
         logging.error(
-            "Different config numbers: %d (Existing) : %d (New)!" % (len(config_a.keys()), len(config_b.keys())))
+            "Different config numbers: %d (Existing) : %d (New)!"
+            % (len(config_a.keys()), len(config_b.keys()))
+        )
         return False
-    elif len(config_a.keys() - config_b.keys()) == 1 and (config_a.keys() - config_b.keys())[0] != "config_file":
+    elif (
+        len(config_a.keys() - config_b.keys()) == 1
+        and (config_a.keys() - config_b.keys())[0] != "config_file"
+    ):
         logging.error(
-            "Different config numbers: %d (Existing) : %d (New)!" % (len(config_a.keys()), len(config_b.keys())))
+            "Different config numbers: %d (Existing) : %d (New)!"
+            % (len(config_a.keys()), len(config_b.keys()))
+        )
         return False
     else:
         for i in config_a.keys() & config_b.keys():
             _ai = tuple(config_a[i]) if type(config_a[i]) == list else config_a[i]
             _bi = tuple(config_b[i]) if type(config_b[i]) == list else config_b[i]
             if _ai != _bi and i not in ignored_keys:
-                logging.error("Mismatch in %s: %s (Existing) - %s (New)" % (str(i), str(config_a[i]), str(config_b[i])))
+                logging.error(
+                    "Mismatch in %s: %s (Existing) - %s (New)"
+                    % (str(i), str(config_a[i]), str(config_b[i]))
+                )
                 return False
 
     return True

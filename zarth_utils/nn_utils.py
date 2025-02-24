@@ -299,7 +299,8 @@ class DataloaderWrapper:
         return len(self.dl)
 
 
-def random_split(n, ratio=(0.8, 0.1, 0.1)):
+def random_split(n, ratio=(0.8, 0.1, 0.1), seed=0):
+    set_random_seed(seed)
     assert sum(ratio) == 1.0
     ret = []
     order = np.random.permutation(n)

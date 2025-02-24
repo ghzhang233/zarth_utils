@@ -105,7 +105,7 @@ class Drawer:
         ylim=None,
         smooth=0,
         mode="plot",
-        **kwargs
+        **kwargs,
     ):
         """
         Draw one axes, which can be understood as a sub-figure.
