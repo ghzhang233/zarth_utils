@@ -40,21 +40,6 @@ class Timer:
             self.cumulative_duration += self.last_duration
             self.start_time = None
 
-    def pause(self):
-        """
-        Press the pause button of the timer.
-        """
-        if self.__is_timing():
-            self.last_duration += time.time() - self.start_time
-            self.cumulative_duration += self.last_duration
-            self.start_time = None
-
-    def proceed(self):
-        """
-        Press the proceed button of the timer if pause is applied before.
-        """
-        self.start_time = time.time()
-
     def get_last_duration(self, start_again=False):
         """
         Get the duration from the last start() call to the last end() call. If the timer is not ended, this will end
