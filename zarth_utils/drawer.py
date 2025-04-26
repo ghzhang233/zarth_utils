@@ -141,7 +141,7 @@ class Drawer:
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
-            if type(x[0]) in (list, np.array):
+            if type(x[0]) in (list, np.ndarray):
                 assert len(x) == len(y)
                 xi = x[i]
             else:
