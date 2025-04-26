@@ -141,12 +141,12 @@ class Drawer:
 
         format_generator = self.get_format(use_marker)
         for i, yi in enumerate(y):
-            if len(x) == len(y) and type(x[0]) is list:
+            if type(x[0]) in (list, np.array):
+                assert len(x) == len(y)
                 xi = x[i]
-            elif len(x) == len(y[0]) and type(x[0]) is not list:
-                xi = x
             else:
-                raise NotImplementedError
+                assert len(x) == len(y[0])
+                xi = x
 
             if smooth != 0:
                 yi_smoothed = []
